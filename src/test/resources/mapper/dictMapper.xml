@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.noo.mapper.DictMapper">
+    <select id="findAllDict" parameterType="org.noo.dialect.model.Pagetag"
+            resultType="org.noo.module.Dict">
+        select ID,CREATORTIME,DATASOURCE,DATATYPE,DICTNAME,DICTNUMBER,ENABLE,RENEWTIME,SORT from CD_DICT ORDER BY SORT
+    </select>
+</mapper>
