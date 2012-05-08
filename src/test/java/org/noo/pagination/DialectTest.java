@@ -2,11 +2,11 @@
  * Copyright (c) 2010-2011 IFLYTEK. All Rights Reserved.
  * [Id:DialectTest.java  2012-03-21 下午9:12 poplar.yfyang ]
  */
-package org.yfmumu.pagination;
+package org.noo.pagination;
 
 import org.junit.Test;
-import org.yfmumu.pagination.dialect.Dialect;
-import org.yfmumu.pagination.dialect.db.SQLServer2005Dialect;
+import org.noo.pagination.dialect.Dialect;
+import org.noo.pagination.dialect.db.SQLServer2005Dialect;
 
 /**
  * <p>

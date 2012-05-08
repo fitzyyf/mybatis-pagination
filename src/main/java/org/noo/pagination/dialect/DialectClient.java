@@ -2,11 +2,11 @@
  * Copyright (c) 2010-2011 NOO. All Rights Reserved.
  * [Id:DialectClient.java  2011-11-18 下午2:54 poplar.yfyang ]
  */
-package org.yfmumu.pagination.dialect;
+package org.noo.pagination.dialect;
 
 import com.google.common.collect.Maps;
-import org.yfmumu.pagination.dialect.db.MySQLDialect;
-import org.yfmumu.pagination.dialect.db.OracleDialect;
+import org.noo.pagination.dialect.db.MySQLDialect;
+import org.noo.pagination.dialect.db.OracleDialect;
 
 import java.io.Serializable;
 import java.util.Map;

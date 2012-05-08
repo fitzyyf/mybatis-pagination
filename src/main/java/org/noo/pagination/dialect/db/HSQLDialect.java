@@ -1,15 +1,20 @@
-package org.yfmumu.pagination.dialect.db;
+package org.noo.pagination.dialect.db;
 
-import org.yfmumu.pagination.dialect.Dialect;
+import org.noo.pagination.dialect.Dialect;
 
 /**
+ * Dialect for HSQLDB
  * @author poplar.yfyang
  * @version 1.0 2010-10-10 下午12:31
  * @since JDK 1.5
  */
-public class MySQLDialect implements Dialect {
+public class HSQLDialect implements Dialect {
 
-	public boolean supportsLimitOffset(){
+	public boolean supportsLimit() {
+		return true;
+	}
+
+	public boolean supportsLimitOffset() {
 		return true;
 	}
 
@@ -17,10 +22,6 @@ public class MySQLDialect implements Dialect {
     public String getLimitString(String sql, int offset, int limit) {
         return getLimitString(sql, offset, Integer.toString(offset),
                 limit, Integer.toString(limit));
-    }
-
-    public boolean supportsLimit() {   
-        return true;   
     }
     /**
      * 将sql变成分页sql语句,提供将offset及limit使用占位符号(placeholder)替换.
@@ -37,12 +38,12 @@ public class MySQLDialect implements Dialect {
      * @param limitPlaceholder  分页纪录条数占位符号
      * @return 包含占位符的分页sql
      */
-	public String getLimitString(String sql, int offset,String offsetPlaceholder, int limit, String limitPlaceholder) {
-        if (offset > 0) {   
-        	return sql + " limit "+offsetPlaceholder+","+limitPlaceholder; 
-        } else {   
-            return sql + " limit "+limitPlaceholder;
-        }  
-	}   
-  
+    public String getLimitString(String sql, int offset,String offsetPlaceholder, int limit, String limitPlaceholder) {
+		boolean hasOffset = offset>0;
+		return new StringBuffer( sql.length() + 10 )
+		.append( sql )
+		.insert( sql.toLowerCase().indexOf( "select" ) + 6, hasOffset ? " limit "+offsetPlaceholder+" "+limitPlaceholder : " top "+limitPlaceholder )
+		.toString();
+	}
+    
 }

@@ -1,6 +1,6 @@
-package org.yfmumu.pagination.dialect.db;
+package org.noo.pagination.dialect.db;
 
-import org.yfmumu.pagination.dialect.Dialect;
+import org.noo.pagination.dialect.Dialect;
 
 /**
  * DB2的分页数据库方言实现

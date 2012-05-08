@@ -2,7 +2,7 @@
  * Copyright (c) 2010-2011 NOO. All Rights Reserved.
  * [Id:Pagation.java  2011-11-23 下午8:37 poplar.yfyang ]
  */
-package org.yfmumu.pagination;
+package org.noo.pagination;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -25,7 +25,7 @@ import static java.lang.annotation.ElementType.TYPE;
 public @interface PaginationField {
     /**
      * 分页对象的属性名称，
-     * 也就是在当参数传递对象时，需要进行设置{@link org.yfmumu.pagination.model.PagingParameter} 的属性名称
+     * 也就是在当参数传递对象时，需要进行设置{@link org.noo.pagination.model.PagingParameter} 的属性名称
      *
      * @return 分页对象的属性名称，默认page
      */

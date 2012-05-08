@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.yfmumu.paging</groupId>
+    <groupId>org.noo.paging</groupId>
     <artifactId>mybatis-paging</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -11,9 +11,16 @@
     <name>mybatis-paging</name>
     <url>http://maven.apache.org</url>
 
+    <developers>
+        <developer>
+            <id>yfyang</id>
+            <email>poplar1123@gmail.com</email>
+        </developer>
+    </developers>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mybatis.version>3.0.6</mybatis.version>
+        <mybatis.version>3.1.1</mybatis.version>
     </properties>
 
     <dependencies>
@@ -26,7 +33,7 @@
         <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
-            <version>3.0.6</version>
+            <version>${mybatis.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>

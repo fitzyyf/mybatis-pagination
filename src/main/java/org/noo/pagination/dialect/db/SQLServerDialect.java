@@ -1,6 +1,6 @@
-package org.yfmumu.pagination.dialect.db;
+package org.noo.pagination.dialect.db;
 
-import org.yfmumu.pagination.dialect.Dialect;
+import org.noo.pagination.dialect.Dialect;
 
 /**
  * MSSQLServer 数据库实现分页方言

@@ -1,7 +1,7 @@
-package org.yfmumu.pagination.dialect.db;
+package org.noo.pagination.dialect.db;
 
 
-import org.yfmumu.pagination.dialect.Dialect;
+import org.noo.pagination.dialect.Dialect;
 
 /**
  * A dialect compatible with the H2 database.

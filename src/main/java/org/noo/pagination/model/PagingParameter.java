@@ -2,7 +2,7 @@
  * Copyright (c) 2010-2011 NOO. All Rights Reserved.
  * [Id:PagingParameter.java  2011-11-18 下午12:55 poplar.yfyang ]
  */
-package org.yfmumu.pagination.model;
+package org.noo.pagination.model;
 
 import java.io.Serializable;
 

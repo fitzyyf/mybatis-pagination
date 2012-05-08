@@ -1,4 +1,4 @@
-package org.yfmumu.pagination.dialect;
+package org.noo.pagination.dialect;
 
 /**
  * 类似hibernate的Dialect,但只精简出分页部分

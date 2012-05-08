@@ -2,7 +2,7 @@
  * Copyright (c) 2010-2011 NOO. All Rights Reserved.
  * [Id:ReflectHelper.java  2011-11-18 下午1:05 poplar.yfyang ]
  */
-package org.yfmumu.pagination.uitls;
+package org.noo.pagination.uitls;
 
 import java.lang.reflect.Field;
 

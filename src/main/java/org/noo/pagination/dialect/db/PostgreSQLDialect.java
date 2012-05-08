@@ -1,27 +1,26 @@
-package org.yfmumu.pagination.dialect.db;
+package org.noo.pagination.dialect.db;
 
-import org.yfmumu.pagination.dialect.Dialect;
+import org.noo.pagination.dialect.Dialect;
 
 /**
- * Sybase数据库分页方言实现。
- * 还未实现
  * @author poplar.yfyang
  * @version 1.0 2010-10-10 下午12:31
  * @since JDK 1.5
  */
-public class SybaseDialect implements Dialect {
+public class PostgreSQLDialect implements Dialect {
+	
+	public boolean supportsLimit() {
+		return true;
+	}
 
-    public boolean supportsLimit() {
-        return false;
-    }
-
-    public boolean supportsLimitOffset() {
-        return false;
-    }
+	public boolean supportsLimitOffset(){
+		return true;
+	}
 
     @Override
     public String getLimitString(String sql, int offset, int limit) {
-        return null;
+        return getLimitString(sql, offset, Integer.toString(offset),
+                limit, Integer.toString(limit));
     }
 
     /**
@@ -39,8 +38,11 @@ public class SybaseDialect implements Dialect {
      * @param limitPlaceholder  分页纪录条数占位符号
      * @return 包含占位符的分页sql
      */
-    public String getLimitString(String sql, int offset, String offsetPlaceholder, int limit, String limitPlaceholder) {
-        throw new UnsupportedOperationException("paged queries not supported");
-    }
-
+	public String getLimitString(String sql, int offset,
+			String offsetPlaceholder, int limit, String limitPlaceholder) {
+		return new StringBuffer( sql.length()+20 )
+		.append(sql)
+		.append(offset > 0 ? " limit "+limitPlaceholder+" offset "+offsetPlaceholder : " limit "+limitPlaceholder)
+		.toString();
+	}
 }

@@ -2,7 +2,7 @@
  * Copyright (c) 2010-2011 NOO. All Rights Reserved.
  * [Id:PagingPlugin.java  2011-11-18 下午12:31 poplar.yfyang ]
  */
-package org.yfmumu.pagination.plugin;
+package org.noo.pagination.plugin;
 
 import com.google.common.base.Strings;
 import org.apache.ibatis.builder.xml.dynamic.ForEachSqlNode;
@@ -25,11 +25,11 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
-import org.yfmumu.pagination.PaginationField;
-import org.yfmumu.pagination.dialect.Dialect;
-import org.yfmumu.pagination.dialect.DialectClient;
-import org.yfmumu.pagination.model.PagingParameter;
-import org.yfmumu.pagination.uitls.ReflectHelper;
+import org.noo.pagination.PaginationField;
+import org.noo.pagination.dialect.Dialect;
+import org.noo.pagination.dialect.DialectClient;
+import org.noo.pagination.model.PagingParameter;
+import org.noo.pagination.uitls.ReflectHelper;
 
 import javax.xml.bind.PropertyException;
 import java.io.Serializable;

@@ -1,17 +1,13 @@
-package org.yfmumu.pagination.dialect.db;
+package org.noo.pagination.dialect.db;
 
-import org.yfmumu.pagination.dialect.Dialect;
+import org.noo.pagination.dialect.Dialect;
 
 /**
  * @author poplar.yfyang
  * @version 1.0 2010-10-10 下午12:31
  * @since JDK 1.5
  */
-public class PostgreSQLDialect implements Dialect {
-	
-	public boolean supportsLimit() {
-		return true;
-	}
+public class MySQLDialect implements Dialect {
 
 	public boolean supportsLimitOffset(){
 		return true;
@@ -23,6 +19,9 @@ public class PostgreSQLDialect implements Dialect {
                 limit, Integer.toString(limit));
     }
 
+    public boolean supportsLimit() {   
+        return true;   
+    }
     /**
      * 将sql变成分页sql语句,提供将offset及limit使用占位符号(placeholder)替换.
      * <pre>
@@ -38,11 +37,12 @@ public class PostgreSQLDialect implements Dialect {
      * @param limitPlaceholder  分页纪录条数占位符号
      * @return 包含占位符的分页sql
      */
-	public String getLimitString(String sql, int offset,
-			String offsetPlaceholder, int limit, String limitPlaceholder) {
-		return new StringBuffer( sql.length()+20 )
-		.append(sql)
-		.append(offset > 0 ? " limit "+limitPlaceholder+" offset "+offsetPlaceholder : " limit "+limitPlaceholder)
-		.toString();
-	}
+	public String getLimitString(String sql, int offset,String offsetPlaceholder, int limit, String limitPlaceholder) {
+        if (offset > 0) {   
+        	return sql + " limit "+offsetPlaceholder+","+limitPlaceholder; 
+        } else {   
+            return sql + " limit "+limitPlaceholder;
+        }  
+	}   
+  
 }
