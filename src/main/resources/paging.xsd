@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="paging" type="pagingType"/>
+    <xs:complexType name="leafType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="field">
+                    <xs:annotation>
+                        <xs:documentation>字段名称</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="pagingType">
+        <xs:sequence>
+            <xs:element type="pagesizeType" name="pagesize">
+                <xs:annotation>
+                    <xs:documentation>每页显示条数</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="countType" name="count">
+                <xs:annotation>
+                    <xs:documentation>接收显示的条数</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="leafType" name="leaf">
+                <xs:annotation>
+                    <xs:documentation>当前页码</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="model">
+            <xs:annotation>
+                <xs:documentation>分页参数实体</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="pagesizeType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="field">
+                    <xs:annotation>
+                        <xs:documentation>字段名称</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="countType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="field">
+                    <xs:annotation>
+                        <xs:documentation>字段名称</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+</xs:schema>

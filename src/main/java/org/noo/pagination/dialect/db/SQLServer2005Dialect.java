@@ -1,5 +1,6 @@
 package org.noo.pagination.dialect.db;
 
+import org.apache.commons.lang3.StringUtils;
 import org.noo.pagination.dialect.Dialect;
 
 /**
@@ -21,7 +22,7 @@ public class SQLServer2005Dialect implements Dialect {
 
     @Override
     public String getLimitString(String sql, int offset, int limit) {
-        return getLimitString(sql, offset, Integer.toString(offset),
+        return getLimitString(sql, offset,
                 limit, Integer.toString(limit));
     }
 
@@ -37,14 +38,14 @@ public class SQLServer2005Dialect implements Dialect {
      * WHERE __row_number__ BETWEEN :offset and :lastRows
      * ORDER BY __row_number__
      *
+     *
      * @param querySqlString    The SQL statement to base the limit query off of.
      * @param offset            Offset of the first row to be returned by the query (zero-based)
-     * @param offsetPlaceholder offsetPlaceholder
      * @param limit             Maximum number of rows to be returned by the query
      * @param limitPlaceholder  limitPlaceholder
      * @return A new SQL statement with the LIMIT clause applied.
      */
-    private String getLimitString(String querySqlString, int offset, String offsetPlaceholder, int limit, String limitPlaceholder) {
+    private String getLimitString(String querySqlString, int offset, int limit, String limitPlaceholder) {
         StringBuilder pagingBuilder = new StringBuilder();
         String orderby = getOrderByPart(querySqlString);
         String distinctStr = "";
@@ -62,11 +63,11 @@ public class SQLServer2005Dialect implements Dialect {
         pagingBuilder.append(sqlPartString);
 
         // if no ORDER BY is specified use fake ORDER BY field to avoid errors
-        if (orderby == null || orderby.length() == 0) {
+        if (StringUtils.isEmpty(orderby)) {
             orderby = "ORDER BY CURRENT_TIMESTAMP";
         }
 
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         result.append("WITH query AS (SELECT ")
                 .append(distinctStr)
                 .append("TOP 100 PERCENT ")

@@ -4,11 +4,19 @@
  */
 package org.noo.pagination.dialect;
 
-import com.google.common.collect.Maps;
+import org.noo.pagination.dialect.db.DB2Dialect;
+import org.noo.pagination.dialect.db.H2Dialect;
+import org.noo.pagination.dialect.db.HSQLDialect;
 import org.noo.pagination.dialect.db.MySQLDialect;
 import org.noo.pagination.dialect.db.OracleDialect;
+import org.noo.pagination.dialect.db.PostgreSQLDialect;
+import org.noo.pagination.dialect.db.SQLServer2005Dialect;
+import org.noo.pagination.dialect.db.SQLServerDialect;
+import org.noo.pagination.dialect.db.SybaseDialect;
+import org.noo.pagination.model.DBMS;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -23,36 +31,60 @@ import java.util.Map;
 public class DialectClient implements Serializable {
     private static final long serialVersionUID = 8107330250767760951L;
 
-    private static final Map<String, Dialect> DBMS_DIALECT = Maps.newHashMap();
+    private static final Map<DBMS, Dialect> DBMS_DIALECT = new HashMap<DBMS, Dialect>();
 
     /**
      * 根据数据库名称获取数据库分页查询的方言实现。
      *
-     * @param dbmsName 数据库名称
+     * @param dbms 数据库名称
      * @return 数据库分页方言实现
      */
-    public static Dialect getDbmsDialiect(String dbmsName) {
-        //转换为小写，保持一致性
-        dbmsName = dbmsName.toLowerCase();
-        if (DBMS_DIALECT.containsKey(dbmsName)) {
-            return DBMS_DIALECT.get(dbmsName);
+    public static Dialect getDbmsDialect(DBMS dbms) {
+        if (DBMS_DIALECT.containsKey(dbms)) {
+            return DBMS_DIALECT.get(dbms);
         }
-        Dialect dialect = createDbmsDialiect(dbmsName);
-        DBMS_DIALECT.put(dbmsName, dialect);
+        Dialect dialect = createDbmsDialect(dbms);
+        DBMS_DIALECT.put(dbms, dialect);
         return dialect;
     }
 
-    private static Dialect createDbmsDialiect(String dbmsName) {
-        if (dbmsName != null && !dbmsName.equals("")) {
-//            int dbmsNameCode = System.identityHashCode(dbmsName);
-            if ("mysql".equals(dbmsName)) {
+    /**
+     * 插入自定义方言的实例
+     *
+     * @param exDialect 方言实现
+     */
+    public static void putEx(Dialect exDialect) {
+        DBMS_DIALECT.put(DBMS.EX, exDialect);
+    }
+
+    /**
+     * 创建数据库方言
+     *
+     * @param dbms 数据库
+     * @return 数据库
+     */
+    private static Dialect createDbmsDialect(DBMS dbms) {
+        switch (dbms) {
+            case MYSQL:
                 return new MySQLDialect();
-            } else if ("oracle".endsWith(dbmsName)) {
+            case ORACLE:
                 return new OracleDialect();
-            }
-            return null;
-        } else {
-            throw new UnsupportedOperationException("数据库方言不能为空");
+            case DB2:
+                return new DB2Dialect();
+            case POSTGRE:
+                return new PostgreSQLDialect();
+            case SQL_SERVER:
+                return new SQLServerDialect();
+            case SQL_SERVER_2005:
+                return new SQLServer2005Dialect();
+            case SYBASE:
+                return new SybaseDialect();
+            case H2:
+                return new H2Dialect();
+            case HSQL:
+                return new HSQLDialect();
+            default:
+                throw new UnsupportedOperationException("数据库方言不能为空");
         }
     }
 

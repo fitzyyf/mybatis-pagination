@@ -40,7 +40,7 @@ public class DB2Dialect implements Dialect {
 
     @Override
     public String getLimitString(String sql, int offset, int limit) {
-        return getLimitString(sql, offset, Integer.toString(offset), limit, Integer.toString(limit));
+        return getLimitString(sql, offset, Integer.toString(offset), Integer.toString(limit));
     }
 
     /**
@@ -51,14 +51,14 @@ public class DB2Dialect implements Dialect {
      * select * from user limit :offset,:limit
      * </pre>
      *
+     *
      * @param sql               实际SQL语句
      * @param offset            分页开始纪录条数
      * @param offsetPlaceholder 分页开始纪录条数－占位符号
-     * @param limit             分页每页显示纪录条数
      * @param limitPlaceholder  分页纪录条数占位符号
      * @return 包含占位符的分页sql
      */
-    public String getLimitString(String sql, int offset, String offsetPlaceholder, int limit, String limitPlaceholder) {
+    public String getLimitString(String sql, int offset, String offsetPlaceholder, String limitPlaceholder) {
         int startOfSelect = sql.toLowerCase().indexOf("select");
 
         StringBuilder pagingSelect = new StringBuilder(sql.length() + 100)

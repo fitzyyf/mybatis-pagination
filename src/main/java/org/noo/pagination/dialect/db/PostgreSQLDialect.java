@@ -8,19 +8,19 @@ import org.noo.pagination.dialect.Dialect;
  * @since JDK 1.5
  */
 public class PostgreSQLDialect implements Dialect {
-	
-	public boolean supportsLimit() {
-		return true;
-	}
 
-	public boolean supportsLimitOffset(){
-		return true;
-	}
+    public boolean supportsLimit() {
+        return true;
+    }
+
+    public boolean supportsLimitOffset() {
+        return true;
+    }
 
     @Override
     public String getLimitString(String sql, int offset, int limit) {
         return getLimitString(sql, offset, Integer.toString(offset),
-                limit, Integer.toString(limit));
+                Integer.toString(limit));
     }
 
     /**
@@ -31,18 +31,19 @@ public class PostgreSQLDialect implements Dialect {
      * select * from user limit :offset,:limit
      * </pre>
      *
+     *
      * @param sql               实际SQL语句
      * @param offset            分页开始纪录条数
      * @param offsetPlaceholder 分页开始纪录条数－占位符号
-     * @param limit             分页每页显示纪录条数
      * @param limitPlaceholder  分页纪录条数占位符号
      * @return 包含占位符的分页sql
      */
-	public String getLimitString(String sql, int offset,
-			String offsetPlaceholder, int limit, String limitPlaceholder) {
-		return new StringBuffer( sql.length()+20 )
-		.append(sql)
-		.append(offset > 0 ? " limit "+limitPlaceholder+" offset "+offsetPlaceholder : " limit "+limitPlaceholder)
-		.toString();
-	}
+    public String getLimitString(String sql, int offset,
+                                 String offsetPlaceholder, String limitPlaceholder) {
+        StringBuilder pageSql = new StringBuilder().append(sql);
+        pageSql = offset <= 0
+                ? pageSql.append(" limit ").append(limitPlaceholder) :
+                pageSql.append(" limit ").append(limitPlaceholder).append(" offset ").append(offsetPlaceholder);
+        return pageSql.toString();
+    }
 }

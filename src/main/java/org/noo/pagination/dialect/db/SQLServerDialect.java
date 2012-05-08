@@ -4,29 +4,31 @@ import org.noo.pagination.dialect.Dialect;
 
 /**
  * MSSQLServer 数据库实现分页方言
+ *
  * @author poplar.yfyang
  * @version 1.0 2010-10-10 下午12:31
  * @since JDK 1.5
  */
 public class SQLServerDialect implements Dialect {
 
-	public boolean supportsLimitOffset(){
-		return false;
-	}
-	
-	public boolean supportsLimit() {
-		return true;
-	}
-	
-	static int getAfterSelectInsertPoint(String sql) {
-		int selectIndex = sql.toLowerCase().indexOf( "select" );
-		final int selectDistinctIndex = sql.toLowerCase().indexOf( "select distinct" );
-		return selectIndex + ( selectDistinctIndex == selectIndex ? 15 : 6 );
-	}
+    public boolean supportsLimitOffset() {
+        return false;
+    }
 
-	public String getLimitString(String sql, int offset, int limit) {
-		return getLimitString(sql,offset,null,limit,null);
-	}
+    public boolean supportsLimit() {
+        return true;
+    }
+
+    static int getAfterSelectInsertPoint(String sql) {
+        int selectIndex = sql.toLowerCase().indexOf("select");
+        final int selectDistinctIndex = sql.toLowerCase().indexOf("select distinct");
+        return selectIndex + (selectDistinctIndex == selectIndex ? 15 : 6);
+    }
+
+    public String getLimitString(String sql, int offset, int limit) {
+        return getLimit(sql, offset, limit);
+    }
+
     /**
      * 将sql变成分页sql语句,提供将offset及limit使用占位符号(placeholder)替换.
      * <pre>
@@ -35,30 +37,20 @@ public class SQLServerDialect implements Dialect {
      * select * from user limit :offset,:limit
      * </pre>
      *
-     * @param sql               实际SQL语句
-     * @param offset            分页开始纪录条数
-     * @param offsetPlaceholder 分页开始纪录条数－占位符号
-     * @param limit             分页每页显示纪录条数
-     * @param limitPlaceholder  分页纪录条数占位符号
+     * @param sql    实际SQL语句
+     * @param offset 分页开始纪录条数
+     * @param limit  分页每页显示纪录条数
      * @return 包含占位符的分页sql
      */
-	public String getLimitString(String sql, int offset,String offsetPlaceholder, int limit, String limitPlaceholder) {
-		if ( offset > 0 ) {
-			throw new UnsupportedOperationException( "sql server has no offset" );
-		}
-//		if(limitPlaceholder != null) {
-//			throw new UnsupportedOperationException(" sql server not support variable limit");
-//		}
-		
-		return new StringBuffer( sql.length() + 8 )
-				.append( sql )
-				.insert( getAfterSelectInsertPoint( sql ), " top " + limit )
-				.toString();
-	}
-	
-	// TODO add Dialect.supportsVariableLimit() for sqlserver 
-//	public boolean supportsVariableLimit() {
-//		return false;
-//	}
+    public String getLimit(String sql, int offset, int limit) {
+        if (offset > 0) {
+            throw new UnsupportedOperationException("sql server has no offset");
+        }
+        return new StringBuffer(sql.length() + 8)
+                .append(sql)
+                .insert(getAfterSelectInsertPoint(sql), " top " + limit)
+                .toString();
+    }
+
 
 }

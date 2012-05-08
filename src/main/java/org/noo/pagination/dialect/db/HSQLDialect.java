@@ -4,25 +4,27 @@ import org.noo.pagination.dialect.Dialect;
 
 /**
  * Dialect for HSQLDB
+ *
  * @author poplar.yfyang
  * @version 1.0 2010-10-10 下午12:31
  * @since JDK 1.5
  */
 public class HSQLDialect implements Dialect {
 
-	public boolean supportsLimit() {
-		return true;
-	}
+    public boolean supportsLimit() {
+        return true;
+    }
 
-	public boolean supportsLimitOffset() {
-		return true;
-	}
+    public boolean supportsLimitOffset() {
+        return true;
+    }
 
     @Override
     public String getLimitString(String sql, int offset, int limit) {
         return getLimitString(sql, offset, Integer.toString(offset),
-                limit, Integer.toString(limit));
+                Integer.toString(limit));
     }
+
     /**
      * 将sql变成分页sql语句,提供将offset及limit使用占位符号(placeholder)替换.
      * <pre>
@@ -34,16 +36,16 @@ public class HSQLDialect implements Dialect {
      * @param sql               实际SQL语句
      * @param offset            分页开始纪录条数
      * @param offsetPlaceholder 分页开始纪录条数－占位符号
-     * @param limit             分页每页显示纪录条数
      * @param limitPlaceholder  分页纪录条数占位符号
      * @return 包含占位符的分页sql
      */
-    public String getLimitString(String sql, int offset,String offsetPlaceholder, int limit, String limitPlaceholder) {
-		boolean hasOffset = offset>0;
-		return new StringBuffer( sql.length() + 10 )
-		.append( sql )
-		.insert( sql.toLowerCase().indexOf( "select" ) + 6, hasOffset ? " limit "+offsetPlaceholder+" "+limitPlaceholder : " top "+limitPlaceholder )
-		.toString();
-	}
-    
+    public String getLimitString(String sql, int offset, String offsetPlaceholder, String limitPlaceholder) {
+        boolean hasOffset = offset > 0;
+        return
+                new StringBuffer(sql.length() + 10)
+                        .append(sql)
+                        .insert(sql.toLowerCase().indexOf("select") + 6, hasOffset ? " limit " + offsetPlaceholder + " " + limitPlaceholder : " top " + limitPlaceholder)
+                        .toString();
+    }
+
 }

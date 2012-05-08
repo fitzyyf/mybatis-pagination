@@ -32,11 +32,8 @@ public class H2Dialect implements Dialect {
      * @return 包含占位符的分页sql
      */
     private String getLimitString(String sql, int offset, String offsetPlaceholder, int limit, String limitPlaceholder) {
-        return new StringBuffer(sql.length() + 40).
-                append(sql).
-                append((offset > 0) ? " limit " + limitPlaceholder + " offset "
-                        + offsetPlaceholder : " limit " + limitPlaceholder).
-                toString();
+        return sql + ((offset > 0) ? " limit " + limitPlaceholder + " offset "
+                + offsetPlaceholder : " limit " + limitPlaceholder);
     }
 
     @Override

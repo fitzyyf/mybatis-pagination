@@ -4,41 +4,31 @@
  */
 package org.noo.pagination.plugin;
 
-import com.google.common.base.Strings;
-import org.apache.ibatis.builder.xml.dynamic.ForEachSqlNode;
-import org.apache.ibatis.executor.ErrorContext;
-import org.apache.ibatis.executor.ExecutorException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.executor.statement.BaseStatementHandler;
 import org.apache.ibatis.executor.statement.RoutingStatementHandler;
 import org.apache.ibatis.executor.statement.StatementHandler;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.mapping.ParameterMapping;
-import org.apache.ibatis.mapping.ParameterMode;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.plugin.Intercepts;
 import org.apache.ibatis.plugin.Invocation;
 import org.apache.ibatis.plugin.Plugin;
 import org.apache.ibatis.plugin.Signature;
-import org.apache.ibatis.reflection.MetaObject;
-import org.apache.ibatis.reflection.property.PropertyTokenizer;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.type.TypeHandler;
-import org.apache.ibatis.type.TypeHandlerRegistry;
-import org.noo.pagination.PaginationField;
+import org.noo.pagination.annotation.Paging;
 import org.noo.pagination.dialect.Dialect;
 import org.noo.pagination.dialect.DialectClient;
-import org.noo.pagination.model.PagingParameter;
-import org.noo.pagination.uitls.ReflectHelper;
+import org.noo.pagination.model.DBMS;
+import org.noo.pagination.model.Pagetag;
+import org.noo.pagination.uitls.ClassUtils;
+import org.noo.pagination.uitls.Reflections;
 
 import javax.xml.bind.PropertyException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -56,76 +46,88 @@ import java.util.Properties;
         @Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class})
 })
 public class PagingPlugin implements Interceptor, Serializable {
-    private static final long serialVersionUID = -6075937069117597841L;
     /**
-     * 数据库分页方言
+     * 序列化
      */
-    private static String _dialect = "";
+    private static final long serialVersionUID = -6075937069117597841L;
+
+
+    /**
+     * 日志
+     */
+    private static final Log log = LogFactory.getLog(PagingPlugin.class);
+
+    private static final String DELEGATE = "delegate";
+
+    private static final String MAPPED_STATEMENT = "mappedStatement";
+    /**
+     * 默认Mysql 数据库分页方言
+     */
+    private static final ThreadLocal<DBMS> DBMS_THREAD_LOCAL = new ThreadLocal<DBMS>() {
+        @Override
+        protected DBMS initialValue() {
+            return DBMS.MYSQL;
+        }
+    };
     /**
      * 拦截的ID，在mapper中的id，可以匹配正则
      */
-    private static String _sqlIdsRule = "";
+    private static final ThreadLocal<String> SQL_PATTERN = new ThreadLocal<String>() {
+        @Override
+        protected String initialValue() {
+            return "";
+        }
+    };
 
     @Override
     public Object intercept(Invocation ivk) throws Throwable {
-        if (ivk.getTarget() instanceof RoutingStatementHandler) {
+        if (ivk.getTarget().getClass().isAssignableFrom(RoutingStatementHandler.class)) {
             RoutingStatementHandler statementHandler = (RoutingStatementHandler) ivk.getTarget();
-            BaseStatementHandler delegate = (BaseStatementHandler) ReflectHelper.getValueByFieldName(statementHandler, "delegate");
-            MappedStatement mappedStatement = (MappedStatement) ReflectHelper.getValueByFieldName(delegate, "mappedStatement");
+            BaseStatementHandler delegate = (BaseStatementHandler) Reflections.getFieldValue(statementHandler, DELEGATE);
+            MappedStatement mappedStatement = (MappedStatement) Reflections.getFieldValue(delegate, MAPPED_STATEMENT);
 
-            if (mappedStatement.getId().matches(_sqlIdsRule)) { //拦截需要分页的SQL
+            if (mappedStatement.getId().matches(SQL_PATTERN.get())) { //拦截需要分页的SQL
                 BoundSql boundSql = delegate.getBoundSql();
                 //分页SQL<select>中parameterType属性对应的实体参数，即Mapper接口中执行分页方法的参数,该参数不得为空
                 Object parameterObject = boundSql.getParameterObject();
                 if (parameterObject == null) {
+                    log.error("参数未实例化");
                     throw new NullPointerException("parameterObject尚未实例化！");
                 } else {
                     Connection connection = (Connection) ivk.getArgs()[0];
                     String sql = boundSql.getSql();
                     //记录统计
-                    String countSql = "select count(0) from (" + sql + ") as tmp_count";
-                    PreparedStatement countStmt = connection.prepareStatement(countSql);
-                    BoundSql countBS = new BoundSql(mappedStatement.getConfiguration(), countSql,
-                            boundSql.getParameterMappings(), parameterObject);
-                    setParameters(countStmt, mappedStatement, countBS, parameterObject);
-                    ResultSet rs = countStmt.executeQuery();
-                    int count = 0;
-                    if (rs.next()) {
-                        count = rs.getInt(1);
-                    }
-                    rs.close();
-                    countStmt.close();
-                    PagingParameter page;
+                    int count = SQLHelp.getCount(sql, connection, mappedStatement, parameterObject, boundSql);
+                    Pagetag page;
                     //参数就是Paging实体
-                    if (parameterObject instanceof PagingParameter) {
-                        page = (PagingParameter) parameterObject;
-                        page.setEntityOrField(true);
+                    if (ClassUtils.equalObject(parameterObject, Pagetag.class)) {
+                        page = (Pagetag) parameterObject;
                         page.setTotal(count);
                     } else {
                         //参数为某个实体，该实体拥有Page属性
-                        PaginationField paginationField = parameterObject.getClass().getAnnotation(PaginationField.class);
-                        String field = paginationField.field();
-                        Field pageField = ReflectHelper.getFieldByFieldName(parameterObject,field);
+                        Paging paging = parameterObject.getClass().getAnnotation(Paging.class);
+                        String field = paging.field();
+                        Field pageField = Reflections.getAccessibleField(parameterObject, field);
                         if (pageField != null) {
-                            page = (PagingParameter) ReflectHelper.getValueByFieldName(parameterObject, field);
+                            page = (Pagetag) Reflections.getFieldValue(parameterObject, field);
                             if (page == null)
-                                page = new PagingParameter();
-                            page.setEntityOrField(false);
+                                page = new Pagetag();
                             page.setTotal(count);
                             //通过反射，对实体对象设置分页对象
-                            ReflectHelper.setValueByFieldName(parameterObject, field, page);
+                            Reflections.setFieldValue(parameterObject, field, page);
                         } else {
-                            throw new NoSuchFieldException(parameterObject.getClass().getName() + "不存在 page 属性！");
+                            throw new NoSuchFieldException(parameterObject.getClass().getName()
+                                    + "不存在 page 属性！");
                         }
                     }
-                    String pageSql = generatePageSql(sql, page);
                     //将分页sql语句反射回BoundSql.
-                    ReflectHelper.setValueByFieldName(boundSql, "sql", pageSql);
+                    Reflections.setFieldValue(boundSql, "sql", SQLHelp.generatePageSql(sql, page, DBMS_THREAD_LOCAL.get()));
                 }
             }
         }
         return ivk.proceed();
     }
+
 
     @Override
     public Object plugin(Object o) {
@@ -134,82 +136,49 @@ public class PagingPlugin implements Interceptor, Serializable {
 
 
     /**
-     * 对SQL参数(?)设值,参考org.apache.ibatis.executor.parameter.DefaultParameterHandler
+     * 设置属性，支持自定义方言类和制定数据库的方式
+     * <p>
+     * <code>dialectClass</code>,自定义方言类。可以不配置这项
+     * <ode>dbms</ode> 数据库类型，插件支持的数据库
+     * <code>sqlPattern</code> 需要拦截的SQL ID
+     * </p>
+     * 如果同时配置了<code>dialectClass</code>和<code>dbms</code>,则以<code>dbms</code>为主
      *
-     * @param ps              表示预编译的 SQL 语句的对象。
-     * @param mappedStatement MappedStatement
-     * @param boundSql        SQL
-     * @param parameterObject 参数对象
-     * @throws java.sql.SQLException 数据库异常
+     * @param p 属性
      */
-    @SuppressWarnings("unchecked")
-    private void setParameters(PreparedStatement ps, MappedStatement mappedStatement, BoundSql boundSql, Object parameterObject) throws SQLException {
-        ErrorContext.instance().activity("setting parameters").object(mappedStatement.getParameterMap().getId());
-        List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
-        if (parameterMappings != null) {
-            Configuration configuration = mappedStatement.getConfiguration();
-            TypeHandlerRegistry typeHandlerRegistry = configuration.getTypeHandlerRegistry();
-            MetaObject metaObject = parameterObject == null ? null :
-                    configuration.newMetaObject(parameterObject);
-            for (int i = 0; i < parameterMappings.size(); i++) {
-                ParameterMapping parameterMapping = parameterMappings.get(i);
-                if (parameterMapping.getMode() != ParameterMode.OUT) {
-                    Object value;
-                    String propertyName = parameterMapping.getProperty();
-                    PropertyTokenizer prop = new PropertyTokenizer(propertyName);
-                    if (parameterObject == null) {
-                        value = null;
-                    } else if (typeHandlerRegistry.hasTypeHandler(parameterObject.getClass())) {
-                        value = parameterObject;
-                    } else if (boundSql.hasAdditionalParameter(propertyName)) {
-                        value = boundSql.getAdditionalParameter(propertyName);
-                    } else if (propertyName.startsWith(ForEachSqlNode.ITEM_PREFIX) && boundSql.hasAdditionalParameter(prop.getName())) {
-                        value = boundSql.getAdditionalParameter(prop.getName());
-                        if (value != null) {
-                            value = configuration.newMetaObject(value).getValue(propertyName.substring(prop.getName().length()));
-                        }
-                    } else {
-                        value = metaObject == null ? null : metaObject.getValue(propertyName);
-                    }
-                    TypeHandler typeHandler = parameterMapping.getTypeHandler();
-                    if (typeHandler == null) {
-                        throw new ExecutorException("There was no TypeHandler found for parameter " + propertyName + " of statement " + mappedStatement.getId());
-                    }
-                    typeHandler.setParameter(ps, i + 1, value, parameterMapping.getJdbcType());
-                }
-            }
-        }
-    }
-
-    /**
-     * 根据数据库方言，生成特定的分页sql
-     *
-     * @param sql  Mapper中的Sql语句
-     * @param page 分页对象
-     * @return 分页SQL
-     */
-    private String generatePageSql(String sql, PagingParameter page) {
-        if (page != null && !Strings.isNullOrEmpty(_dialect)) {
-            Dialect dialect = DialectClient.getDbmsDialiect(_dialect);
-            return dialect.getLimitString(sql, page.getBeginIndex(), page.getPagingSize());
-        } else {
-            return sql;
-        }
-    }
-
+    @Override
     public void setProperties(Properties p) {
-        _dialect = p.getProperty("dialect");
-        if (Strings.isNullOrEmpty(_dialect)) {
+        String dialectClass = p.getProperty("dialectClass");
+        if (!StringUtils.isEmpty(dialectClass)) {
+            Dialect dialect1 = (Dialect) Reflections.instance(dialectClass);
+            if (dialect1 == null) {
+                throw new NullPointerException("方言实例错误");
+            }
+            DialectClient.putEx(dialect1);
+            DBMS_THREAD_LOCAL.set(DBMS.EX);
+        }
+
+        String dialect = p.getProperty("dbms");
+        if (StringUtils.isEmpty(dialect)) {
             try {
                 throw new PropertyException("dialect property is not found!");
             } catch (PropertyException e) {
                 e.printStackTrace();
             }
         }
-        _sqlIdsRule = p.getProperty("idsRule");
-        if (Strings.isNullOrEmpty(_sqlIdsRule)) {
+        DBMS_THREAD_LOCAL.set(DBMS.valueOf(dialect));
+        if (DBMS_THREAD_LOCAL.get() == null) {
             try {
-                throw new PropertyException("pageSqlId property is not found!");
+                throw new PropertyException("插件无法支持该数据库");
+            } catch (PropertyException e) {
+                e.printStackTrace();
+            }
+        }
+
+        SQL_PATTERN.set(p.getProperty("sqlPattern"));
+        if (StringUtils.isEmpty(SQL_PATTERN.get())) {
+            try {
+                throw new PropertyException("sqlPattern property is not found!");
             } catch (PropertyException e) {
                 e.printStackTrace();
             }

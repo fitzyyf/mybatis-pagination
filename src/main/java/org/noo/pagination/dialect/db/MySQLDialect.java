@@ -9,19 +9,20 @@ import org.noo.pagination.dialect.Dialect;
  */
 public class MySQLDialect implements Dialect {
 
-	public boolean supportsLimitOffset(){
-		return true;
-	}
+    public boolean supportsLimitOffset() {
+        return true;
+    }
 
     @Override
     public String getLimitString(String sql, int offset, int limit) {
         return getLimitString(sql, offset, Integer.toString(offset),
-                limit, Integer.toString(limit));
+                Integer.toString(limit));
     }
 
-    public boolean supportsLimit() {   
-        return true;   
+    public boolean supportsLimit() {
+        return true;
     }
+
     /**
      * 将sql变成分页sql语句,提供将offset及limit使用占位符号(placeholder)替换.
      * <pre>
@@ -33,16 +34,18 @@ public class MySQLDialect implements Dialect {
      * @param sql               实际SQL语句
      * @param offset            分页开始纪录条数
      * @param offsetPlaceholder 分页开始纪录条数－占位符号
-     * @param limit             分页每页显示纪录条数
      * @param limitPlaceholder  分页纪录条数占位符号
      * @return 包含占位符的分页sql
      */
-	public String getLimitString(String sql, int offset,String offsetPlaceholder, int limit, String limitPlaceholder) {
-        if (offset > 0) {   
-        	return sql + " limit "+offsetPlaceholder+","+limitPlaceholder; 
-        } else {   
-            return sql + " limit "+limitPlaceholder;
-        }  
-	}   
-  
+    public String getLimitString(String sql, int offset, String offsetPlaceholder, String limitPlaceholder) {
+        StringBuilder stringBuilder = new StringBuilder(sql);
+        stringBuilder.append(" limit ");
+        if (offset > 0) {
+            stringBuilder.append(offsetPlaceholder).append(",").append(limitPlaceholder);
+        } else {
+            stringBuilder.append(limitPlaceholder);
+        }
+        return stringBuilder.toString();
+    }
+
 }

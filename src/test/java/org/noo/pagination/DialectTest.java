@@ -7,6 +7,7 @@ package org.noo.pagination;
 import org.junit.Test;
 import org.noo.pagination.dialect.Dialect;
 import org.noo.pagination.dialect.db.SQLServer2005Dialect;
+import org.noo.pagination.model.DBMS;
 
 /**
  * <p>
@@ -25,5 +26,11 @@ public class DialectTest {
                 " ('c443fa8c-0166-4d6a-bfa6-a47e321be3bc') and state02 in ('transfered' , 'created') " +
                 "and state03<>'destructed' ", 10, 20);
         System.out.println("分页SQL："+sql);
+    }
+
+    @Test
+    public void testName() throws Exception {
+        DBMS dbms = DBMS.valueOf("MYSQL");
+        System.out.println(dbms);
     }
 }
