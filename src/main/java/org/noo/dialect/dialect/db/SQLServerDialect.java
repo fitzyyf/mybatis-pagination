@@ -11,10 +11,6 @@ import org.noo.dialect.dialect.Dialect;
  */
 public class SQLServerDialect implements Dialect {
 
-    public boolean supportsLimitOffset() {
-        return false;
-    }
-
     public boolean supportsLimit() {
         return true;
     }

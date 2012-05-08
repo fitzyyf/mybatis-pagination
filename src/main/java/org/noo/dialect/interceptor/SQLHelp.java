@@ -132,9 +132,13 @@ public class SQLHelp {
      */
     public static String generatePageSql(String sql, RecordPage page, DBMS dbms) {
         Dialect dialect = DialectClient.getDbmsDialect(dbms);
-        int pageSize = page.getPagingSize();
-        int index = (page.getLeaf() - 1) * pageSize;
-        int start = index < 0 ? 0 : index;
-        return dialect.getLimitString(sql, start, pageSize);
+        if (dialect.supportsLimit()) {
+            int pageSize = page.getPagingSize();
+            int index = (page.getLeaf() - 1) * pageSize;
+            int start = index < 0 ? 0 : index;
+            return dialect.getLimitString(sql, start, pageSize);
+        } else {
+            return sql;
+        }
     }
 }

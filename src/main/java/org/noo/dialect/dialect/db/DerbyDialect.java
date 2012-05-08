@@ -8,18 +8,15 @@ import org.noo.dialect.dialect.Dialect;
  * @since JDK 1.5
  */
 public class DerbyDialect implements Dialect {
-
-	public boolean supportsLimit() {
-		return false;
-	}
-
-	public boolean supportsLimitOffset() {
-		return false;
+    @Override
+    public boolean supportsLimit() {
+        return false;
 	}
 
     @Override
     public String getLimitString(String sql, int offset, int limit) {
-        return getLimitString(sql,offset,Integer.toString(offset),limit,Integer.toString(limit));
+//        return getLimitString(sql,offset,Integer.toString(offset),limit,Integer.toString(limit));
+        throw new UnsupportedOperationException("paged queries not supported");
     }
 
     /**

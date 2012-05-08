@@ -10,12 +10,8 @@ import org.noo.dialect.dialect.Dialect;
  * @since JDK 1.5
  */
 public class HSQLDialect implements Dialect {
-
+    @Override
     public boolean supportsLimit() {
-        return true;
-    }
-
-    public boolean supportsLimitOffset() {
         return true;
     }
 

@@ -3,17 +3,14 @@ package org.noo.dialect.dialect.db;
 import org.noo.dialect.dialect.Dialect;
 
 /**
+ * Oracle的方言实现
  * @author poplar.yfyang
  * @version 1.0 2010-10-10 下午12:31
  * @since JDK 1.5
  */
 public class OracleDialect implements Dialect {
-
+    @Override
     public boolean supportsLimit() {
-        return true;
-    }
-
-    public boolean supportsLimitOffset() {
         return true;
     }
 
@@ -29,7 +26,6 @@ public class OracleDialect implements Dialect {
      * dialect.getLimitString("select * from user", 12, ":offset",0,":limit") 将返回
      * select * from user limit :offset,:limit
      * </pre>
-     *
      *
      * @param sql               实际SQL语句
      * @param offset            分页开始纪录条数

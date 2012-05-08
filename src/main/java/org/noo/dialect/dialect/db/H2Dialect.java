@@ -37,11 +37,6 @@ public class H2Dialect implements Dialect {
     }
 
     @Override
-    public boolean supportsLimitOffset() {
-        return true;
-    }
-
-    @Override
     public String getLimitString(String sql, int offset, int limit) {
         return getLimitString(sql, offset, Integer.toString(offset), limit, Integer.toString(limit));
     }

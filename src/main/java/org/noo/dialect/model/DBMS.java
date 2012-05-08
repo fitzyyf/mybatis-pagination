@@ -2,7 +2,7 @@ package org.noo.dialect.model;
 
 /**
  * <p>
- * .
+ * 数据库类型.
  * </p>
  *
  * @author poplar.yfyang

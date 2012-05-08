@@ -10,12 +10,8 @@ import org.noo.dialect.dialect.Dialect;
  * @since JDK 1.5
  */
 public class DB2Dialect implements Dialect {
-
+    @Override
     public boolean supportsLimit() {
-        return true;
-    }
-
-    public boolean supportsLimitOffset() {
         return true;
     }
 
@@ -50,7 +46,6 @@ public class DB2Dialect implements Dialect {
      * dialect.getLimitString("select * from user", 12, ":offset",0,":limit") 将返回
      * select * from user limit :offset,:limit
      * </pre>
-     *
      *
      * @param sql               实际SQL语句
      * @param offset            分页开始纪录条数

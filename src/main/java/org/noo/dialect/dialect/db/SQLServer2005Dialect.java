@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.noo.dialect.dialect.Dialect;
 
 /**
+ * Sql 2005的方言实现
  * @author poplar.yfyang
  * @version 1.0 2010-10-10 下午12:31
  * @since JDK 1.5
@@ -12,11 +13,6 @@ public class SQLServer2005Dialect implements Dialect {
 
     @Override
     public boolean supportsLimit() {
-        return true;
-    }
-
-    @Override
-    public boolean supportsLimitOffset() {
         return true;
     }
 
@@ -38,11 +34,10 @@ public class SQLServer2005Dialect implements Dialect {
      * WHERE __row_number__ BETWEEN :offset and :lastRows
      * ORDER BY __row_number__
      *
-     *
-     * @param querySqlString    The SQL statement to base the limit query off of.
-     * @param offset            Offset of the first row to be returned by the query (zero-based)
-     * @param limit             Maximum number of rows to be returned by the query
-     * @param limitPlaceholder  limitPlaceholder
+     * @param querySqlString   The SQL statement to base the limit query off of.
+     * @param offset           Offset of the first row to be returned by the query (zero-based)
+     * @param limit            Maximum number of rows to be returned by the query
+     * @param limitPlaceholder limitPlaceholder
      * @return A new SQL statement with the LIMIT clause applied.
      */
     private String getLimitString(String querySqlString, int offset, int limit, String limitPlaceholder) {

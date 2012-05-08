@@ -6,6 +6,8 @@
 <mapper namespace="org.noo.mapper.DictMapper">
     <select id="findAllDict" parameterType="org.noo.dialect.model.Pagetag"
             resultType="org.noo.module.Dict">
-        select ID,CREATORTIME,DATASOURCE,DATATYPE,DICTNAME,DICTNUMBER,ENABLE,RENEWTIME,SORT from CD_DICT ORDER BY SORT
+        select
+          ID,CREATORTIME,DATASOURCE,DATATYPE,DICTNAME,DICTNUMBER,ENABLE,RENEWTIME,SORT
+         from CD_DICT ORDER BY SORT
     </select>
 </mapper>
