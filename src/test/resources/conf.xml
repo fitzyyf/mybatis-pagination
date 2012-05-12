@@ -2,10 +2,6 @@
 <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
-    <properties>
-        <property name="dbms" value="mysql"/>
-        <property name="sqlPattern" value="*findAll*"/>
-    </properties>
     <settings>
         <!-- changes from the defaults for testing -->
         <setting name="cacheEnabled" value="false" />
@@ -18,7 +14,7 @@
 
     
     <plugins>
-        <plugin interceptor="org.noo.dialect.interceptor.PaginationInterceptor">
+        <plugin interceptor="org.noo.dialect.interceptor.QueryPaginationInterceptor">
               <property name="dbms" value="mysql"/>
               <property name="sqlPattern" value=".*findAll.*"/>
         </plugin>

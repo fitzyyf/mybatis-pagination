@@ -1,4 +1,4 @@
-package org.noo.dialect.model;
+package org.noo.dialect.page;
 
 /**
  * <p>

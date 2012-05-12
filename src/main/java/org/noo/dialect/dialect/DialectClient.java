@@ -13,7 +13,7 @@ import org.noo.dialect.dialect.db.PostgreSQLDialect;
 import org.noo.dialect.dialect.db.SQLServer2005Dialect;
 import org.noo.dialect.dialect.db.SQLServerDialect;
 import org.noo.dialect.dialect.db.SybaseDialect;
-import org.noo.dialect.model.DBMS;
+import org.noo.dialect.page.DBMS;
 
 import java.io.Serializable;
 import java.util.HashMap;

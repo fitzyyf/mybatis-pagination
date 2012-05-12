@@ -25,7 +25,7 @@ import static java.lang.annotation.ElementType.TYPE;
 public @interface Paging {
     /**
      * 分页对象的属性名称，
-     * 也就是在当参数传递对象时，需要进行设置{@link org.noo.dialect.model.Pagetag} 的属性名称
+     * 也就是在当参数传递对象时，需要进行设置{@link org.noo.dialect.model.PaginationSupport} 的属性名称
      *
      * @return 分页对象的属性名称，默认page
      */

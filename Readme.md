@@ -28,7 +28,7 @@
           ID,CREATORTIME,DATASOURCE,DATATYPE,DICTNAME,DICTNUMBER,ENABLE,RENEWTIME,SORT
          from CD_DICT ORDER BY SORT
     </select>
- 需要注意的是：`parameterType`是插件内部的一个分页实体，也可以为其他的分页实体，需要实现`org.noo.dialect.model.RecordPage` 接口。
+ 需要注意的是：`parameterType`是插件内部的一个分页实体，也可以为其他的分页实体，需要实现`org.noo.dialect.page.RecordPage` 接口。
  另外，如果 `parameterType` 非 `RecordPage`的实现，而是其他的实体，那么具体用法为：
  		
  		@Paging(field="page1")

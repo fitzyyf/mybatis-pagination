@@ -107,6 +107,32 @@ public class Reflections {
         return clazz;
     }
 
+
+    /**
+     * 检查是否含有分页或本来就是分页类
+     * @param obj
+     * @param fieldName
+     * @return
+     */
+    public static Object isPage(Object obj, String fieldName) {
+
+        if (obj instanceof java.util.Map) {
+            java.util.Map map = (java.util.Map)obj;
+            return map.get(fieldName);
+
+        } else {
+            for (Class<?> superClass = obj.getClass(); superClass != Object.class; superClass = superClass.getSuperclass()) {
+                try {
+                    return superClass.getDeclaredField(fieldName);
+                } catch (NoSuchFieldException e) {
+                }
+            }
+            return null;
+        }
+
+    }
+
+
     /**
      * 直接调用对象方法, 无视private/protected修饰符.
      * 用于一次性调用的情况.

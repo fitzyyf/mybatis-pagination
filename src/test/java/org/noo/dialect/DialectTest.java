@@ -7,7 +7,7 @@ package org.noo.dialect;
 import org.junit.Test;
 import org.noo.dialect.dialect.Dialect;
 import org.noo.dialect.dialect.db.SQLServer2005Dialect;
-import org.noo.dialect.model.DBMS;
+import org.noo.dialect.page.DBMS;
 
 /**
  * <p>

@@ -19,4 +19,6 @@ public class ClassUtils {
     public static boolean equalObject(Object obj,Class target){
         return equalClass(obj.getClass(),target);
     }
+
+
 }

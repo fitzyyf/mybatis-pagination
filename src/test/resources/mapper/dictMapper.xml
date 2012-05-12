@@ -4,7 +4,19 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.noo.mapper.DictMapper">
-    <select id="findAllDict" parameterType="org.noo.dialect.model.Pagetag"
+    <select id="findAllDict" parameterType="org.noo.dialect.page.PageVO"
+            resultType="org.noo.module.Dict">
+        select
+          ID,CREATORTIME,DATASOURCE,DATATYPE,DICTNAME,DICTNUMBER,ENABLE,RENEWTIME,SORT
+         from CD_DICT ORDER BY SORT
+    </select>
+    <select id="findAllDictByP" parameterType="org.noo.module.TestFind"
+            resultType="org.noo.module.Dict">
+        select
+          ID,CREATORTIME,DATASOURCE,DATATYPE,DICTNAME,DICTNUMBER,ENABLE,RENEWTIME,SORT
+         from CD_DICT ORDER BY SORT
+    </select>
+    <select id="findAllDictByContext"
             resultType="org.noo.module.Dict">
         select
           ID,CREATORTIME,DATASOURCE,DATATYPE,DICTNAME,DICTNUMBER,ENABLE,RENEWTIME,SORT

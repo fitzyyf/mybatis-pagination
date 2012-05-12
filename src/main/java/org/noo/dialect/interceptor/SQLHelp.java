@@ -14,8 +14,8 @@ import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.noo.dialect.dialect.Dialect;
 import org.noo.dialect.dialect.DialectClient;
-import org.noo.dialect.model.DBMS;
-import org.noo.dialect.model.RecordPage;
+import org.noo.dialect.page.DBMS;
+import org.noo.dialect.page.Page;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -97,7 +97,7 @@ public class SQLHelp {
     public static int getCount(final String sql, final Connection connection,
                                final MappedStatement mappedStatement, final Object parameterObject,
                                final BoundSql boundSql) throws SQLException {
-        final String countSql = "select count(0) from (" + sql + ") as tmp_count";
+        final String countSql = "select count(1) from (" + sql + ") as tmp_count";
         PreparedStatement countStmt = null;
         ResultSet rs = null;
         try {
@@ -130,11 +130,11 @@ public class SQLHelp {
      * @param dbms 方言类型
      * @return 分页SQL
      */
-    public static String generatePageSql(String sql, RecordPage page, DBMS dbms) {
+    public static String generatePageSql(String sql, Page page, DBMS dbms) {
         Dialect dialect = DialectClient.getDbmsDialect(dbms);
         if (dialect.supportsLimit()) {
-            int pageSize = page.getPagingSize();
-            int index = (page.getLeaf() - 1) * pageSize;
+            int pageSize = page.getPageSize();
+            int index = (page.getCurrentPage() - 1) * pageSize;
             int start = index < 0 ? 0 : index;
             return dialect.getLimitString(sql, start, pageSize);
         } else {

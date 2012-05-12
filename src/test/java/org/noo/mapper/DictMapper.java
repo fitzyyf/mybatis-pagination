@@ -1,7 +1,8 @@
 package org.noo.mapper;
 
+import org.noo.dialect.page.Page;
 import org.noo.module.Dict;
-import org.noo.dialect.model.Pagetag;
+import org.noo.module.TestFind;
 
 import java.util.List;
 
@@ -16,5 +17,11 @@ import java.util.List;
  */
 public interface DictMapper {
 
-    List<Dict> findAllDict(Pagetag tag);
+    List<Dict> findAllDict(Page tag);
+
+
+    List<Dict> findAllDictByP(TestFind find);
+
+
+    List<Dict> findAllDictByContext();
 }
