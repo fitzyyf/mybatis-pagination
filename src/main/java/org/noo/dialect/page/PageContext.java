@@ -9,7 +9,7 @@ package org.noo.dialect.page;
  * @version 1.0 2012-05-12 上午10:05
  * @since JDK 1.5
  */
-public class PageContext extends PageVO {
+public class PageContext extends Pagination {
     private static final long serialVersionUID = -3294902812084550562L;
 
     private static final ThreadLocal<PageContext> PAGE_CONTEXT_THREAD_LOCAL = new ThreadLocal<PageContext>();

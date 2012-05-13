@@ -39,5 +39,11 @@
  		}
  上面的`BusinessObject`中有个`page1`的属性，它为RecordPage的实现，通过注解`Paging`来指定它为分页参数信息(field指定)。
 
+### 增加一个拦截器 QueryPaginationInterceptor
+这个拦截器只对查询进行拦截
+
+### 增加分页查询上下文
+增加上下文机制，较少基础配置和代码侵入
+
 # Spring例子
 TODO

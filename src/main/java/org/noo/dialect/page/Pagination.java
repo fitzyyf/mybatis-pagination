@@ -9,7 +9,7 @@ package org.noo.dialect.page;
  * @version 1.0 2012-05-12 上午9:57
  * @since JDK 1.5
  */
-public class PageVO implements Page {
+public class Pagination implements Page {
     /**
      * 序列化ID
      */
@@ -47,11 +47,11 @@ public class PageVO implements Page {
      */
     boolean previous = false;
 
-    public PageVO(int rows, int pageSize) {
+    public Pagination(int rows, int pageSize) {
         this.init(rows, pageSize);
     }
 
-    public PageVO() {
+    public Pagination() {
 
     }
 
@@ -72,6 +72,7 @@ public class PageVO implements Page {
 
     }
 
+    @Override
     public void init(int rows, int pageSize, int currentPage) {
 
         this.pageSize = pageSize;

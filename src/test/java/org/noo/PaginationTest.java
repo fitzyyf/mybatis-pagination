@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.noo.dialect.page.Page;
 import org.noo.dialect.page.PageContext;
-import org.noo.dialect.page.PageVO;
+import org.noo.dialect.page.Pagination;
 import org.noo.mapper.DictMapper;
 import org.noo.module.Dict;
 import org.noo.module.TestFind;
@@ -40,7 +40,7 @@ public class PaginationTest {
     @Test
     public void testName() throws Exception {
         DictMapper dictMapper = _session.getMapper(DictMapper.class);
-        Page paginationSupport = new PageVO();
+        Page paginationSupport = new Pagination();
         paginationSupport.setCurrentPage(2);
         paginationSupport.setPageSize(10);
         List<Dict> list = dictMapper.findAllDict(paginationSupport);
@@ -53,7 +53,7 @@ public class PaginationTest {
     public void testByFind() throws Exception {
         DictMapper dictMapper = _session.getMapper(DictMapper.class);
         TestFind find = new TestFind();
-        Page paginationSupport = new PageVO();
+        Page paginationSupport = new Pagination();
         paginationSupport.setCurrentPage(3);
         paginationSupport.setPageSize(10);
         find.setPageVO(paginationSupport);

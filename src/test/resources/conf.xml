@@ -14,7 +14,7 @@
 
     
     <plugins>
-        <plugin interceptor="org.noo.dialect.interceptor.QueryPaginationInterceptor">
+        <plugin interceptor="org.noo.dialect.interceptor.PaginationInterceptor">
               <property name="dbms" value="mysql"/>
               <property name="sqlPattern" value=".*findAll.*"/>
         </plugin>

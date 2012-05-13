@@ -1,16 +1,21 @@
 package org.noo.dialect.interceptor;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.plugin.Interceptor;
+import org.noo.dialect.annotation.Paging;
 import org.noo.dialect.dialect.Dialect;
 import org.noo.dialect.dialect.DialectClient;
 import org.noo.dialect.page.DBMS;
+import org.noo.dialect.page.Page;
+import org.noo.dialect.page.Pagination;
 import org.noo.dialect.uitls.Reflections;
 
 import javax.xml.bind.PropertyException;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.Properties;
 
 /**
@@ -26,7 +31,8 @@ public abstract class BaseInterceptor implements Interceptor, Serializable {
     /**
      * 日志
      */
-    protected Log log=LogFactory.getLog(this.getClass());;
+    protected Log log = LogFactory.getLog(this.getClass());
+    ;
 
 
     protected static final String DELEGATE = "delegate";
@@ -54,7 +60,34 @@ public abstract class BaseInterceptor implements Interceptor, Serializable {
     };
     private static final long serialVersionUID = 4596430444388728543L;
 
-
+    /**
+     * 对参数进行转换和检查
+     *
+     * @param parameterObject 参数对象
+     * @param pageVO          参数VO
+     * @return 参数VO
+     * @throws NoSuchFieldException 无法找到参数
+     */
+    protected static Page convertParameter(Object parameterObject, Page pageVO) throws NoSuchFieldException {
+        if (parameterObject instanceof Page) {
+            pageVO = (Pagination) parameterObject;
+        } else {
+            //参数为某个实体，该实体拥有Page属性
+            Paging paging = parameterObject.getClass().getAnnotation(Paging.class);
+            String field = paging.field();
+            Field pageField = Reflections.getAccessibleField(parameterObject, field);
+            if (pageField != null) {
+                pageVO = (Pagination) Reflections.getFieldValue(parameterObject, field);
+                if (pageVO == null)
+                    throw new PersistenceException("分页参数不能为空");
+                //通过反射，对实体对象设置分页对象
+                Reflections.setFieldValue(parameterObject, field, pageVO);
+            } else {
+                throw new NoSuchFieldException(parameterObject.getClass().getName() + "不存在分页参数属性！");
+            }
+        }
+        return pageVO;
+    }
 
     /**
      * 设置属性，支持自定义方言类和制定数据库的方式

@@ -44,4 +44,6 @@ public interface Page extends Serializable {
     void setPageStartRow(int i);
 
     void setTotalRows(int i);
+
+    void init(int rows, int pageSize, int currentPage);
 }

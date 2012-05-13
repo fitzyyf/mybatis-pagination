@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2011-2012 NOO.com. All Rights Reserved.
+  ~  This software for customer relationship management system, developed by Noo team.
+  ~  Software code and design for the team, copy rights reserved.
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-3.1.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
+    <context:annotation-config/>
+
+    <!-- ***************资源文件************** -->
+    <bean id="propertyConfig"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location" value="classpath:spring/test.properties"/>
+    </bean>
+
+    <context:component-scan base-package="org.noo.*.manager"/>
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+        <property name="driverClass" value="${cems.driverClass}"/>
+        <property name="jdbcUrl" value="${cems.jdbcurl}"/>
+        <property name="user" value="${cems.username}"/>
+        <property name="password" value="${cems.password}"/>
+    </bean>
+
+
+    <bean id="dataSourceProxy" class="org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+
+    <!-- ***************事务配置************** -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <aop:config>
+        <aop:pointcut id="baseServiceOperation"
+                      expression="execution(* org.noo.*.manager..*Manager.*(..))"/>
+        <aop:advisor advice-ref="txAdvice"
+                     pointcut-ref="baseServiceOperation"/>
+    </aop:config>
+
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="get*" read-only="true"/>
+            <tx:method name="query*" read-only="true"/>
+            <tx:method name="find*" read-only="true"/>
+            <tx:method name="load*" read-only="true"/>
+            <tx:method name="select*" read-only="true"/>
+            <tx:method name="*" propagation="REQUIRED" rollback-for="Exception"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <bean id="pageConfig" class="org.noo.dialect.page.PageConfiguration"/>
+
+    <bean id="sqlSessionFaction" class="org.apache.ibatis.session.defaults.DefaultSqlSessionFactory">
+        <constructor-arg ref="pageConfig"/>
+    </bean>
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="sqlSessionFactory" ref="sqlSessionFaction"/>
+    </bean>
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.noo.cems.ups.mappers"/>
+    </bean>
+</beans>
