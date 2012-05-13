@@ -15,6 +15,9 @@ import org.noo.module.TestFind;
 
 import java.io.Reader;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -74,5 +77,41 @@ public class PaginationTest {
         System.out.println(dicts.size());
         System.out.println(page.getTotalPages());
         System.out.println(page.getTotalRows());
+    }
+    private static int produceTaskSleepTime = 2;
+    @Test
+    public void testRunMoreThread() throws Exception {
+        //构造一个线程池
+        ThreadPoolExecutor producerPool = new ThreadPoolExecutor(10, 21, 0,
+                TimeUnit.SECONDS, new ArrayBlockingQueue(3),
+                new ThreadPoolExecutor.DiscardOldestPolicy());
+        //每隔produceTaskSleepTime的时间向线程池派送一个任务。
+        int i=1;
+        while(i<50){
+            try {
+                Thread.sleep(produceTaskSleepTime);
+                final String task = "task@ " + i;
+                System.out.println("put " + task);
+                final int finalI = i;
+                producerPool.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        System.out.println("运行"+Thread.currentThread().getName());
+                        PageContext page = PageContext.getPageContext();
+                        page.setCurrentPage(finalI);
+                        page.setPageSize(10);
+                        DictMapper dictMapper = _session.getMapper(DictMapper.class);
+                        List<Dict> dicts = dictMapper.findAllDictByContext();
+                        System.out.println(task + "::"+dicts.size());
+                        System.out.println(task + "::"+page.getTotalPages());
+                        System.out.println(task + "::"+page.getTotalRows());
+                    }
+                });
+                i++;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        Thread.sleep(1000000);
     }
 }
