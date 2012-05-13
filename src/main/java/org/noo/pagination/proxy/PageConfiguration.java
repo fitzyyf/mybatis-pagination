@@ -1,4 +1,4 @@
-package org.noo.pagination.page;
+package org.noo.pagination.proxy;
 
 import org.apache.ibatis.binding.MapperRegistry;
 import org.apache.ibatis.session.Configuration;
@@ -6,7 +6,7 @@ import org.apache.ibatis.session.SqlSession;
 
 /**
  * <p>
- * .
+ * 自定义Mybatis的配置，扩展.
  * </p>
  *
  * @author poplar.yfyang

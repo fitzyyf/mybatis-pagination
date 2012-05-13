@@ -1,4 +1,4 @@
-package org.noo.pagination.page;
+package org.noo.pagination.proxy;
 
 import org.apache.ibatis.session.RowBounds;
 
@@ -7,14 +7,14 @@ import java.util.List;
 
 /**
  * <p>
- * .
+ * 分页对象.
  * </p>
  *
  * @author poplar.yfyang
  * @version 1.0 2012-05-13 上午10:10
  * @since JDK 1.5
  */
-public class Pagination1<E> {
+public class Pagination<E> {
 
     private long total;
 
@@ -28,20 +28,20 @@ public class Pagination1<E> {
 
     private int page;
 
-    public Pagination1() {
+    public Pagination() {
         this(1, 15);
     }
 
-    public Pagination1(int page) {
+    public Pagination(int page) {
         this(page, 15);
     }
 
-    public Pagination1(int page, int limit) {
+    public Pagination(int page, int limit) {
         setPage(page);
         setLimit(limit);
     }
 
-    public Pagination1(RowBounds rowBounds) {
+    public Pagination(RowBounds rowBounds) {
         this.limit = rowBounds.getLimit();
         this.offset = rowBounds.getOffset();
         this.page = offset / limit + 1;

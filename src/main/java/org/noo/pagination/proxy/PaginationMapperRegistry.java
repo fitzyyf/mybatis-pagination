@@ -1,4 +1,4 @@
-package org.noo.pagination.page;
+package org.noo.pagination.proxy;
 
 import org.apache.ibatis.binding.BindingException;
 import org.apache.ibatis.binding.MapperRegistry;

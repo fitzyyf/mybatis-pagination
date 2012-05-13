@@ -1,4 +1,4 @@
-package org.noo.pagination.page;
+package org.noo.pagination.proxy;
 
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.binding.BindingException;
@@ -67,14 +67,14 @@ public class PaginationMapperMethod {
     @SuppressWarnings("unchecked")
     public Object execute(Object[] args) {
         final Object param = getParam(args);
-        Pagination1<Object> page;
+        Pagination<Object> page;
         RowBounds rowBounds;
         if (paginationIndex != null) {
-            page = (Pagination1) args[paginationIndex];
+            page = (Pagination) args[paginationIndex];
             rowBounds =  new RowBounds(page.getOffset(), page.getLimit());
         } else if (rowBoundsIndex != null) {
             rowBounds = (RowBounds) args[rowBoundsIndex];
-            page = new Pagination1<Object>();
+            page = new Pagination<Object>();
         } else {
             throw new BindingException("Invalid bound statement (not found rowBounds or pagination in paramenters)");
         }
@@ -129,7 +129,7 @@ public class PaginationMapperMethod {
     private void setupMethodSignature() {
         final Class<?>[] argTypes = method.getParameterTypes();
         for (int i = 0; i < argTypes.length; i++) {
-            if (Pagination1.class.isAssignableFrom(argTypes[i])) {
+            if (Pagination.class.isAssignableFrom(argTypes[i])) {
                 paginationIndex = i;
             } else if (RowBounds.class.isAssignableFrom(argTypes[i])) {
                 rowBoundsIndex = i;

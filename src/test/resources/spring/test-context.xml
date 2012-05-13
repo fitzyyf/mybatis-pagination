@@ -62,7 +62,7 @@
         </tx:attributes>
     </tx:advice>
 
-    <bean id="pageConfig" class="org.noo.pagination.page.PageConfiguration"/>
+    <bean id="pageConfig" class="org.noo.pagination.proxy.PageConfiguration"/>
 
     <bean id="sqlSessionFaction" class="org.apache.ibatis.session.defaults.DefaultSqlSessionFactory">
         <constructor-arg ref="pageConfig"/>

@@ -1,4 +1,4 @@
-package org.noo.pagination.page;
+package org.noo.pagination.proxy;
 
 import org.apache.ibatis.binding.BindingException;
 import org.apache.ibatis.binding.MapperMethod;
@@ -54,7 +54,7 @@ public class PaginationMapperProxy implements InvocationHandler {
             return null;
         }
         final Class<?> declaringInterface = findDeclaringInterface(proxy, method);
-        if (Pagination1.class.isAssignableFrom(method.getReturnType())) {
+        if (Pagination.class.isAssignableFrom(method.getReturnType())) {
             // 分页处理
             return new PaginationMapperMethod(declaringInterface, method, sqlSession).execute(args);
         }
