@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.noo.mapper.DictMapper">
-    <select id="findAllDict" parameterType="org.noo.dialect.page.Pagination"
+    <select id="findAllDict" parameterType="org.noo.pagination.page.Pagination"
             resultType="org.noo.module.Dict">
         select
           ID,CREATORTIME,DATASOURCE,DATATYPE,DICTNAME,DICTNUMBER,ENABLE,RENEWTIME,SORT

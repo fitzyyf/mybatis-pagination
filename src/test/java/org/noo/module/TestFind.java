@@ -1,7 +1,7 @@
 package org.noo.module;
 
-import org.noo.dialect.annotation.Paging;
-import org.noo.dialect.page.Page;
+import org.noo.pagination.annotation.Paging;
+import org.noo.pagination.page.Page;
 
 /**
  * <p>

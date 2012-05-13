@@ -1,6 +1,6 @@
 package org.noo.mapper;
 
-import org.noo.dialect.page.Page;
+import org.noo.pagination.page.Page;
 import org.noo.module.Dict;
 import org.noo.module.TestFind;
 

@@ -6,18 +6,14 @@
 	
 	 <plugins>
         <plugin interceptor="org.noo.dialect.interceptor.PaginationInterceptor">
-              <property name="dbms" value="mysql"/>
+              <property name="dialectClass" value="org.noo.pagination.dialect.db.MySQLDialect"/>
               <property name="sqlPattern" value=".*findAll.*"/>
         </plugin>
     </plugins>
 
-* 第一个属性`dbms`声明当前数据库的类型，插件会根据数据库类型生成对应的方言实现
-	* 包含如下值:MYSQL,ORACLE,DB2,POSTGRE,SQL_SERVER,SQL_SERVER_2005
-	* 分别对应的数据库为:Mysql数据库，Oracle数据库，Postgre SQL数据库，Sql Server 2005下的数据和2005以上的数据
+* 第一个属性 `dialectClass`，方言实现类，需要实现`org.noo.pagination.dialect.Dialect` 接口
 * 第二个属性`sqlPattern`表示插件需要拦截的SQL ID，为正则表达式。
 	* 例如`.*findAll.*` 表示拦截 包含 findAll 的查询sql
-* 另外还有个扩展配置 `dialectClass`，支持自定义的方言实现，需要实现`org.noo.dialect.dialect.Dialect` 接口
-	* **注意：如果同时配置了 `dbms`和 `dialectClass` ，那么插件默认为以 `dbms` 为准，依赖其`dbms`来生产方言实现** 
 
 ### Sql Mapper配置
 示例
