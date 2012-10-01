@@ -78,7 +78,7 @@ public class PaginationTest {
         System.out.println(page.getTotalPages());
         System.out.println(page.getTotalRows());
     }
-    private static int produceTaskSleepTime = 2;
+
     @Test
     public void testRunMoreThread() throws Exception {
         //构造一个线程池
@@ -89,6 +89,7 @@ public class PaginationTest {
         int i=1;
         while(i<50){
             try {
+                int produceTaskSleepTime = 2;
                 Thread.sleep(produceTaskSleepTime);
                 final String task = "task@ " + i;
                 System.out.println("put " + task);

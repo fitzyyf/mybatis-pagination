@@ -48,7 +48,7 @@ public class PaginationInterceptor extends BaseInterceptor {
             PageContext context = PageContext.getPageContext();
 
             //map传参每次都将currentPage重置,先判读map再判断context
-            if (parameterObject != null) {
+            if (parameterObject != null && context == null) {
                 page = convertParameter(parameterObject, page);
             }
 
