@@ -1,7 +1,3 @@
-# See 
-[Yfyang-Plum with mybatis](https://github.com/yfyang/plum/tree/master/src/main/java/plum/mybatis)
-
-
 # Mybatis数据库物理分页插件
 支持Mysql、MSSQL、Oracle、MSSQL2005、Postgre SQL、DB2数据库。
 
