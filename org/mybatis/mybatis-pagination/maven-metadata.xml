@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>org.mybatis</groupId>
+  <artifactId>mybatis-pagination</artifactId>
+  <versioning>
+    <release>0.0.2</release>
+    <versions>
+      <version>0.0.2</version>
+    </versions>
+    <lastUpdated>20130909145449</lastUpdated>
+  </versioning>
+</metadata>
