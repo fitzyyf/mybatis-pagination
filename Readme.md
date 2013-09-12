@@ -1,8 +1,8 @@
-# Mybatis数据库物理分页插件
-支持Mysql、MSSQL、Oracle、MSSQL2005、Postgre SQL、DB2数据库。
+# Mybatis Pagination
+support Mysql、MSSQL、Oracle、MSSQL2005、Postgre SQL、DB2.
 
-## 使用方法
-在Mybatis的配置文件中，增加这个插件
+## Basic Usage
+in the Mybatis config, add the plugin.
 	
 	 <plugins>
         <plugin interceptor="org.mybatis.pagination.PaginationInterceptor">
@@ -11,12 +11,11 @@
         </plugin>
     </plugins>
 
-* 第一个属性 `dbms`，方言类型，目前支持 MYSQL\MSSQL\ORACLE\MSSQL2005等
-* 第二个属性`sqlRegex`表示插件需要拦截的SQL ID，为正则表达式。
-	* 例如`.*findAll.*` 表示拦截 包含 findAll 的查询sql
+* `dbms`，database type. MYSQL\MSSQL\ORACLE\MSSQL2005\DB2
+* `sqlRegex` the mapper method/ sql mapper xml's id, regex string.
+	* example `.*findAll.*` contain `findAll` query sql
 
-### Sql Mapper配置
-示例
+### Sql Mapper config
 	
 	<select id="findAllDict"
             resultType="org.noo.module.Dict">
@@ -25,6 +24,35 @@
          from CD_DICT ORDER BY SORT
     </select>
 
-# Spring例子
+# Spring usage
 
 @see [config](https://github.com/yfyang/mybatis-pagination/blob/master/src/test/resources/spring/test-context.xml) And [TestCase](https://github.com/yfyang/mybatis-pagination/tree/master/src/test/java/org/mybatis/pagination/service)
+
+# Maven Usage
+
+1. add repositories into you project `pom.xml`
+
+        <repositories>
+            <repository>
+                <id>yfyang-mvn-repo</id>
+                <url>https://raw.github.com/yfyang/mybatis-pagination/mvn-repo/</url>
+                <snapshots>
+                    <enabled>true</enabled>
+                    <updatePolicy>always</updatePolicy>
+                </snapshots>
+            </repository>
+        </repositories>
+
+2. add propertie into `pom.xml`:properties
+		
+        <properties>
+            <org.mybatis.pagination.version>0.0.2-1</org.mybatis.pagination.version>
+        </properties>
+
+3. add dependency into `pom.xml`
+
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-pagination</artifactId>
+            <version>${org.mybatis.pagination.version}</version>
+        </dependency>
