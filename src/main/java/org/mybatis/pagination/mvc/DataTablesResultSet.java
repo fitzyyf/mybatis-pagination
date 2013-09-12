@@ -4,11 +4,10 @@
 
 package org.mybatis.pagination.mvc;
 
-import org.mybatis.pagination.dto.PageMyBatis;
-import org.mybatis.pagination.dto.datatables.PagingCriteria;
-
 import java.util.Collections;
 import java.util.List;
+
+import org.mybatis.pagination.dto.PageMyBatis;
 
 /**
  * <p>
@@ -28,11 +27,11 @@ public final class DataTablesResultSet<T> {
     /**
      * Instantiates a new Data tables result set.
      *
-     * @param pc the pc
+     * @param sEcho the pc
      * @param rs the rs
      */
-    public DataTablesResultSet(PagingCriteria pc, PageMyBatis<T> rs) {
-        this.sEcho = pc.getPageNumber();
+    public DataTablesResultSet(int sEcho, PageMyBatis<T> rs) {
+        this.sEcho = sEcho;
         this.aaData = rs;
         this.iTotalRecords = rs.getTotal();
         this.iTotalDisplayRecords = rs.getTotal();

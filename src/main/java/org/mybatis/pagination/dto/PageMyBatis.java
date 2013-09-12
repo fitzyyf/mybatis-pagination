@@ -1,13 +1,13 @@
 package org.mybatis.pagination.dto;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import org.mybatis.pagination.mvc.DataTablesResultSet;
-import org.mybatis.pagination.dto.datatables.PagingCriteria;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+import org.mybatis.pagination.dto.datatables.PagingCriteria;
+import org.mybatis.pagination.mvc.DataTablesResultSet;
 
 /**
  * <p>
@@ -54,6 +54,7 @@ public class PageMyBatis<E> extends ArrayList<E> {
      * @param content the content
      */
     public PageMyBatis(List<E> content) {
+        // fixed total is 0 throw NullPointException
         this(content, null, null == content ? 0 : content.size());
     }
 
@@ -72,7 +73,7 @@ public class PageMyBatis<E> extends ArrayList<E> {
      * @return the page
      */
     public DataTablesResultSet<E> warp() {
-        return new DataTablesResultSet<E>(pageable, this);
+        return new DataTablesResultSet<E>(pageable == null ? 0 : pageable.getPageNumber(), this);
     }
 
     @Override

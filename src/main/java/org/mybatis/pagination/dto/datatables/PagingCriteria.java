@@ -7,6 +7,8 @@ package org.mybatis.pagination.dto.datatables;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 /**
  * <p>
  * jQuery DataTables's PagingCriteria.
@@ -67,6 +69,9 @@ public final class PagingCriteria {
      * @return the sort fields
      */
     public List<SortField> getSortFields() {
+        if(this.sortFields == null){
+            return Lists.newArrayListWithCapacity(0);
+        }
         return Collections.unmodifiableList(sortFields);
     }
 

@@ -57,6 +57,13 @@ public class MapperTest {
     }
 
     @Test
+    public void testPagainationAndWrap() throws Exception {
+        PagingCriteria baseCriteria = new PagingCriteria(0, 15, 15, null);
+        PageMyBatis<Resources> pageMyBatis = resourcesMapper.selectByPage(baseCriteria);
+        System.out.println("pageMyBatis.warp() = " + pageMyBatis.warp());
+    }
+
+    @Test
     public void testPagainationAndOrder() throws Exception {
 
         List<SortField> sortFields = Lists.newArrayList();

@@ -4,6 +4,9 @@
 
 package org.mybatis.pagination;
 
+import java.sql.SQLException;
+import java.util.List;
+
 import org.apache.ibatis.cache.Cache;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.BatchResult;
@@ -19,9 +22,6 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.transaction.Transaction;
 import org.mybatis.pagination.dto.PageMyBatis;
 
-import java.sql.SQLException;
-import java.util.List;
-
 
 /**
  * Paging executor.
@@ -34,13 +34,9 @@ import java.util.List;
  */
 public class PaginationExecutor implements Executor {
 
-    /**
-     * logging
-     */
+    /** logging */
     private static final Log LOG = LogFactory.getLog(PaginationExecutor.class);
-    /**
-     * mybatis executor interface
-     */
+    /** mybatis executor interface */
     private final Executor executor;
 
     /**
@@ -68,16 +64,7 @@ public class PaginationExecutor implements Executor {
         try {
             if (total != 0) {
                 final PageMyBatis<E> result = new PageMyBatis<E>(rows, PaginationInterceptor.getPageRequest(), total);
-                // if the current of the executor is for CachingExecutor
-                final Cache cache = ms.getCache();
-                // Determine whether the current query cache.
-                if (executor.getClass().isAssignableFrom(CachingExecutor.class) && cache != null) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("cache executor the cache's kye  is " + cacheKey);
-                    }
-
-                    cache.putObject(cacheKey, result);
-                }
+                doCache(ms, result, parameter, rowBounds);
                 return result;
             } else {
                 return new PageMyBatis<E>(rows);
@@ -97,18 +84,7 @@ public class PaginationExecutor implements Executor {
         try {
             if (total != 0) {
                 final PageMyBatis<E> result = new PageMyBatis<E>(rows, PaginationInterceptor.getPageRequest(), total);
-                // if the current of the executor is for CachingExecutor
-                final Cache cache = ms.getCache();
-                // Determine whether the current query cache.
-                if (executor.getClass().isAssignableFrom(CachingExecutor.class) && cache != null) {
-                    BoundSql boundSql = ms.getBoundSql(parameter);
-                    final CacheKey cacheKey = createCacheKey(ms, parameter, rowBounds, boundSql);
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("cache executor the cache's kye  is " + cacheKey);
-                    }
-
-                    cache.putObject(cacheKey, result);
-                }
+                doCache(ms, result, parameter, rowBounds);
                 return result;
             } else {
                 return new PageMyBatis<E>(rows);
@@ -117,6 +93,29 @@ public class PaginationExecutor implements Executor {
             PaginationInterceptor.clean();
         }
 
+    }
+
+    /**
+     * do mybatis cache with this executor.
+     *
+     * @param ms        mapped statuement.
+     * @param result    database result.
+     * @param parameter sql paramater.
+     * @param rowBounds row bounds
+     * @param <E>       paramter.
+     */
+    private <E> void doCache(MappedStatement ms, PageMyBatis<E> result, Object parameter, RowBounds rowBounds) {
+        // if the current of the executor is for CachingExecutor
+        final Cache cache = ms.getCache();
+        // Determine whether the current query cache.
+        if (executor.getClass().isAssignableFrom(CachingExecutor.class) && cache != null) {
+            BoundSql boundSql = ms.getBoundSql(parameter);
+            final CacheKey cacheKey = createCacheKey(ms, parameter, rowBounds, boundSql);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("cache executor the cache's kye  is " + cacheKey);
+            }
+            cache.putObject(cacheKey, result);
+        }
     }
 
     @Override
