@@ -296,4 +296,11 @@
     <select id="selectByPage" resultMap="BaseResultMap">
         select id, name, type, path, action, controller, status from res
     </select>
+
+    <select id="selectByPageOrder" resultMap="BaseResultMap">
+        select id, name, type, path, action, controller, status from res order by name
+    </select>
+    <select id="selectByPageOrderAndWhere" resultMap="BaseResultMap">
+        select id, name, type, path, action, controller, status from res where name=#{name} order by name
+    </select>
 </mapper>

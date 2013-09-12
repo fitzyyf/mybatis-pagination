@@ -4,6 +4,14 @@
 
 package org.mybatis.pagination.helpers;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.executor.ExecutorException;
 import org.apache.ibatis.logging.Log;
@@ -21,14 +29,6 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.mybatis.pagination.dialect.Dialect;
 import org.springframework.util.Assert;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * <p>
  * .
@@ -40,21 +40,27 @@ import java.util.regex.Pattern;
  */
 public class SqlHelper {
 
-    /**
-     * Order by 正则表达式
-     */
-    public static final String ORDER_BY_REGEX = "order\\s*by[\\w|\\W|\\s|\\S]*";
-    /**
-     * Xsql Order by 正则表达式
-     */
-    public static final String XSQL_ORDER_BY_REGEX = "/~.*order\\s*by[\\w|\\W|\\s|\\S]*~/";
-    /**
-     * From正则表达式
-     */
-    public static final String FROM_REGEX = "\\sfrom\\s";
-    /**
-     * logging
-     */
+    public static final String SQL_ORDER = " order by ";
+
+    public static final String OR_JOINER = " or ";
+
+
+    public static final String  OR_SQL_FORMAT       = "%s or (%s) %s";
+    public static final String  WHERE_SQL_FORMAT    = "%s where (%s) %s";
+    public static final String  SQL_FORMAT          = "%s, %s";
+    public static final String  ORDER_SQL_FORMAT    = "%s order by %s";
+
+    /** Order by 正则表达式 */
+    public static final String ORDER_BY_REGEX       = "order\\s*by[\\w|\\W|\\s|\\S]*";
+    /** sql contains whre regex. */
+    public static final String WHERE_REGEX          = "\\s+where\\s+";
+    /** sql contains <code>order by </code> regex. */
+    public static final String ORDER_REGEX          = "order\\s+by";
+    /** Xsql Order by 正则表达式 */
+    public static final String XSQL_ORDER_BY_REGEX  = "/~.*order\\s*by[\\w|\\W|\\s|\\S]*~/";
+    /** From正则表达式 */
+    public static final String FROM_REGEX           = "\\sfrom\\s";
+    /** logging */
     private static final Log LOG = LogFactory.getLog(SqlHelper.class);
 
     /**
@@ -181,18 +187,28 @@ public class SqlHelper {
         Matcher m = p.matcher(sql);
         StringBuffer sb = new StringBuffer();
         while (m.find()) {
-            m.appendReplacement(sb, "");
+            m.appendReplacement(sb, StringHelper.EMPTY);
         }
         m.appendTail(sb);
         return sb.toString();
     }
 
-    public static boolean hasOrder(String sql) {
-        return sql.matches(ORDER_BY_REGEX);
+    public static boolean containOrder(String sql) {
+        return containRegex(sql, ORDER_REGEX);
+    }
+
+    public static boolean containWhere(String sql) {
+        return containRegex(sql, WHERE_REGEX);
     }
 
     public static String removeFetchKeyword(String sql) {
         return sql.replaceAll("(?i)fetch", "");
+    }
+
+    public static boolean containRegex(String sql, String regex) {
+        Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(sql);
+        return matcher.find();
     }
 
     public static String removeXsqlBuilderOrders(String string) {

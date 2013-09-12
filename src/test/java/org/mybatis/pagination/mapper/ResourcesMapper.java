@@ -84,4 +84,6 @@ public interface ResourcesMapper {
     int updateByPrimaryKey(Resources record);
 
     PageMyBatis<Resources> selectByPage(PagingCriteria pagingCriteria);
+    PageMyBatis<Resources> selectByPageOrder(PagingCriteria pagingCriteria);
+    PageMyBatis<Resources> selectByPageOrderAndWhere(PagingCriteria pagingCriteria,@Param("name") String name);
 }
