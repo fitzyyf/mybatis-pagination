@@ -4,8 +4,9 @@
 
 package org.mybatis.pagination.dialect.db;
 
+import io.github.sparta.helpers.sql.SqlRemoveHelper;
 import org.mybatis.pagination.dialect.Dialect;
-import org.mybatis.pagination.helpers.SqlHelper;
+import org.mybatis.pagination.helpers.CountHelper;
 import org.mybatis.pagination.helpers.StringHelper;
 
 /**
@@ -36,7 +37,7 @@ public class SQLServer2005Dialect implements Dialect {
      * @return count sql.
      */
     public static String getNonOrderByPart(String sql) {
-        return SqlHelper.removeOrders(sql);
+        return SqlRemoveHelper.removeOrders(sql);
     }
 
     @Override

@@ -13,6 +13,8 @@ import java.util.Properties;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import io.github.sparta.helpers.reflex.Reflections;
+import io.github.sparta.helpers.sql.SqlRemoveHelper;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
@@ -33,8 +35,7 @@ import org.mybatis.pagination.dialect.DialectClient;
 import org.mybatis.pagination.dto.datatables.PagingCriteria;
 import org.mybatis.pagination.dto.datatables.SearchField;
 import org.mybatis.pagination.dto.datatables.SortField;
-import org.mybatis.pagination.helpers.Reflections;
-import org.mybatis.pagination.helpers.SqlHelper;
+import org.mybatis.pagination.helpers.CountHelper;
 import org.mybatis.pagination.helpers.StringHelper;
 
 /**
@@ -110,7 +111,7 @@ public class PaginationInterceptor implements Interceptor, Serializable {
 
     private static String sortAndFilterSql(String sql, PagingCriteria pagingCriteria, BoundSql boundSql) {
 
-        boolean order = SqlHelper.containOrder(sql);
+        boolean order = SqlRemoveHelper.containOrder(sql);
         final List<SearchField> searchFields = pagingCriteria.getSearchFields();
         if (searchFields != null && !searchFields.isEmpty()) {
             List<String> where_field = Lists.newArrayList();
@@ -118,15 +119,15 @@ public class PaginationInterceptor implements Interceptor, Serializable {
                 //TODO regex and pre
                 where_field.add(searchField.getField() + StringHelper.LIKE_CHAR + "'%" + searchField.getValue() + "%'");
             }
-            boolean where = SqlHelper.containWhere(sql);
+            boolean where = SqlRemoveHelper.containWhere(sql);
             String orderBy = StringHelper.EMPTY;
             if (order) {
-                String[] sqls = sql.split(SqlHelper.ORDER_REGEX);
+                String[] sqls = sql.split(SqlRemoveHelper.ORDER_REGEX);
                 sql = sqls[0];
-                orderBy = SqlHelper.SQL_ORDER + sqls[1];
+                orderBy = CountHelper.SQL_ORDER + sqls[1];
             }
-            sql = String.format((where ? SqlHelper.OR_SQL_FORMAT : SqlHelper.WHERE_SQL_FORMAT), sql
-                    , Joiner.on(SqlHelper.OR_JOINER).join(where_field), orderBy);
+            sql = String.format((where ? CountHelper.OR_SQL_FORMAT : CountHelper.WHERE_SQL_FORMAT), sql
+                    , Joiner.on(CountHelper.OR_JOINER).join(where_field), orderBy);
         }
 
         final List<SortField> sortFields = pagingCriteria.getSortFields();
@@ -135,7 +136,7 @@ public class PaginationInterceptor implements Interceptor, Serializable {
             for (SortField sortField : sortFields) {
                 field_order.add(sortField.getField() + StringHelper.BLANK_CHAR + sortField.getDirection().getDirection());
             }
-            return String.format(order ? SqlHelper.SQL_FORMAT : SqlHelper.ORDER_SQL_FORMAT, sql
+            return String.format(order ? CountHelper.SQL_FORMAT : CountHelper.ORDER_SQL_FORMAT, sql
                     , Joiner.on(StringHelper.DOT_CHAR).join(field_order));
         }
 
@@ -172,7 +173,7 @@ public class PaginationInterceptor implements Interceptor, Serializable {
             try {
                 //get connection
                 connection = ms.getConfiguration().getEnvironment().getDataSource().getConnection();
-                int count = SqlHelper.getCount(sql, connection, ms, parameter, boundSql, _dialect);
+                int count = CountHelper.getCount(sql, connection, ms, parameter, boundSql, _dialect);
                 PAGINATION_TOTAL.set(count);
             } catch (SQLException e) {
                 log.error("The total number of access to the database failure.", e);

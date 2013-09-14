@@ -5,7 +5,7 @@
 
     <groupId>org.mybatis</groupId>
     <artifactId>mybatis-pagination</artifactId>
-    <version>0.0.2-1</version>
+    <version>0.0.2-2</version>
     <packaging>jar</packaging>
 
     <name>mybatis-paging</name>
@@ -32,7 +32,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>14.0.1</version>
+            <version>15.0</version>
         </dependency>
         <dependency>
             <groupId>org.mybatis</groupId>
@@ -144,6 +144,11 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>io.github.yfyang</groupId>
+            <artifactId>sparta-helper</artifactId>
+            <version>0.0.1</version>
+        </dependency>
 
     </dependencies>
 
@@ -197,6 +202,16 @@
             </plugin>
         </plugins>
     </build>
+    <repositories>
+        <repository>
+            <id>yfyang-mvn-repo</id>
+            <url>https://raw.github.com/yfyang/sparta-helpers/mvn-repo/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
     <distributionManagement>
         <repository>
             <id>github</id>

@@ -9,8 +9,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.executor.ExecutorException;
@@ -27,7 +25,6 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.mybatis.pagination.dialect.Dialect;
-import org.springframework.util.Assert;
 
 /**
  * <p>
@@ -38,30 +35,16 @@ import org.springframework.util.Assert;
  * @version 1.0 2012-05-08 上午11:30
  * @since JDK 1.5
  */
-public class SqlHelper {
+public class CountHelper {
 
     public static final String SQL_ORDER = " order by ";
-
     public static final String OR_JOINER = " or ";
-
-
-    public static final String  OR_SQL_FORMAT       = "%s or (%s) %s";
-    public static final String  WHERE_SQL_FORMAT    = "%s where (%s) %s";
-    public static final String  SQL_FORMAT          = "%s, %s";
-    public static final String  ORDER_SQL_FORMAT    = "%s order by %s";
-
-    /** Order by 正则表达式 */
-    public static final String ORDER_BY_REGEX       = "order\\s*by[\\w|\\W|\\s|\\S]*";
-    /** sql contains whre regex. */
-    public static final String WHERE_REGEX          = "\\s+where\\s+";
-    /** sql contains <code>order by </code> regex. */
-    public static final String ORDER_REGEX          = "order\\s+by";
-    /** Xsql Order by 正则表达式 */
-    public static final String XSQL_ORDER_BY_REGEX  = "/~.*order\\s*by[\\w|\\W|\\s|\\S]*~/";
-    /** From正则表达式 */
-    public static final String FROM_REGEX           = "\\sfrom\\s";
+    public static final String OR_SQL_FORMAT = "%s or (%s) %s";
+    public static final String WHERE_SQL_FORMAT = "%s where (%s) %s";
+    public static final String SQL_FORMAT = "%s, %s";
+    public static final String ORDER_SQL_FORMAT = "%s order by %s";
     /** logging */
-    private static final Log LOG = LogFactory.getLog(SqlHelper.class);
+    private static final Log LOG = LogFactory.getLog(CountHelper.class);
 
     /**
      * 查询总纪录数
@@ -88,7 +71,7 @@ public class SqlHelper {
             countStmt = connection.prepareStatement(count_sql);
             final BoundSql countBS = new BoundSql(mappedStatement.getConfiguration(), count_sql,
                     boundSql.getParameterMappings(), parameterObject);
-            SqlHelper.setParameters(countStmt, mappedStatement, countBS, parameterObject);
+            CountHelper.setParameters(countStmt, mappedStatement, countBS, parameterObject);
             rs = countStmt.executeQuery();
             int count = 0;
             if (rs.next()) {
@@ -153,73 +136,4 @@ public class SqlHelper {
         }
     }
 
-    private static int indexOfByRegex(String input, String regex) {
-        Pattern p = Pattern.compile(regex);
-        Matcher m = p.matcher(input);
-        if (m.find()) {
-            return m.start();
-        }
-        return -1;
-    }
-
-    /**
-     * 去除select 子句，未考虑union的情况
-     *
-     * @param sql sql
-     * @return 删除掉的selcet的子句
-     */
-    public static String removeSelect(String sql) {
-        Assert.hasText(sql);
-        int beginPos = indexOfByRegex(sql.toLowerCase(), FROM_REGEX);
-        Assert.isTrue(beginPos != -1, " sql : " + sql + " must has a keyword 'from'");
-        return sql.substring(beginPos);
-    }
-
-    /**
-     * 去除orderby 子句
-     *
-     * @param sql sql
-     * @return 去掉order by sql
-     */
-    public static String removeOrders(String sql) {
-        Assert.hasText(sql);
-        Pattern p = Pattern.compile(ORDER_BY_REGEX, Pattern.CASE_INSENSITIVE);
-        Matcher m = p.matcher(sql);
-        StringBuffer sb = new StringBuffer();
-        while (m.find()) {
-            m.appendReplacement(sb, StringHelper.EMPTY);
-        }
-        m.appendTail(sb);
-        return sb.toString();
-    }
-
-    public static boolean containOrder(String sql) {
-        return containRegex(sql, ORDER_REGEX);
-    }
-
-    public static boolean containWhere(String sql) {
-        return containRegex(sql, WHERE_REGEX);
-    }
-
-    public static String removeFetchKeyword(String sql) {
-        return sql.replaceAll("(?i)fetch", "");
-    }
-
-    public static boolean containRegex(String sql, String regex) {
-        Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(sql);
-        return matcher.find();
-    }
-
-    public static String removeXsqlBuilderOrders(String string) {
-        Assert.hasText(string);
-        Pattern p = Pattern.compile(XSQL_ORDER_BY_REGEX, Pattern.CASE_INSENSITIVE);
-        Matcher m = p.matcher(string);
-        StringBuffer sb = new StringBuffer();
-        while (m.find()) {
-            m.appendReplacement(sb, "");
-        }
-        m.appendTail(sb);
-        return removeOrders(sb.toString());
-    }
 }
