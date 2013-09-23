@@ -4,9 +4,7 @@
 
 package org.mybatis.pagination.mvc;
 
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-
+import com.google.common.base.CaseFormat;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.mybatis.pagination.dto.datatables.PagingCriteria;
@@ -15,6 +13,9 @@ import org.mybatis.pagination.dto.datatables.SortField;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebArgumentResolver;
 import org.springframework.web.context.request.NativeWebRequest;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * <p>
@@ -58,38 +59,38 @@ public class TableParamArgumentResolver implements WebArgumentResolver {
      * This can be useful for ensuring that the processing of data is independent from the order of the columns.
      */
     private static final String S_DATA_PROP = "mDataProp_";
-    /** Individual column filter */
+    /**
+     * Individual column filter
+     */
     private static final String S_SEACHE_VAL = "sSearch_";
-    /** True if the individual column filter should be treated as a regular expression for advanced filtering, false if not */
+    /**
+     * True if the individual column filter should be treated as a regular expression for advanced filtering, false if not
+     */
     private static final String B_REGEX = "bRegex_";
-    /** Indicator for if a column is flagged as sortable or not on the client-side */
+    /**
+     * Indicator for if a column is flagged as sortable or not on the client-side
+     */
     private static final String B_SORTTABLE = "bSortable_";
-    /** Global search field value */
+    /**
+     * Global search field value
+     */
     private static final String S_SEARCH = "sSearch";
-    /** Number of columns being displayed (useful for getting individual column search info) */
+    /**
+     * Number of columns being displayed (useful for getting individual column search info)
+     */
     private static final String I_COLUMNS = "iColumns";
+    /**
+     * Hump Split colum name
+     */
+    private final boolean humpSplit;
 
-    @Override
-    public Object resolveArgument(MethodParameter methodParameter, NativeWebRequest webRequest) throws Exception {
-        TableParam tableParamAnnotation = methodParameter.getParameterAnnotation(TableParam.class);
-        if (tableParamAnnotation != null) {
-            HttpServletRequest httpRequest = (HttpServletRequest) webRequest.getNativeRequest();
-
-            String sEcho = httpRequest.getParameter(S_ECHO);
-            String sDisplayStart = httpRequest.getParameter(I_DISPLAY_START);
-            String sDisplayLength = httpRequest.getParameter(I_DISPLAY_LENGTH);
-
-            int iEcho = Integer.parseInt(sEcho);
-            int iDisplayStart = Integer.parseInt(sDisplayStart);
-            int iDisplayLength = Integer.parseInt(sDisplayLength);
-
-            List<SortField> sortFields = getSortFileds(httpRequest);
-            List<SearchField> searchFields = getSearchParam(httpRequest);
-
-            return PagingCriteria.createCriteriaWithAllParamter(iDisplayStart, iDisplayLength, iEcho, sortFields, searchFields);
-        }
-
-        return WebArgumentResolver.UNRESOLVED;
+    /**
+     * Instantiates a new Table param argument resolver.
+     *
+     * @param humpSplit the hump split
+     */
+    public TableParamArgumentResolver(boolean humpSplit) {
+        this.humpSplit = humpSplit;
     }
 
     /**
@@ -122,7 +123,7 @@ public class TableParamArgumentResolver implements WebArgumentResolver {
      * @param httpRequest the http request
      * @return the search param
      */
-    private static List<SearchField> getSearchParam(final HttpServletRequest httpRequest) {
+    private List<SearchField> getSearchParam(final HttpServletRequest httpRequest) {
         int iColumns = Integer.valueOf(httpRequest.getParameter(I_COLUMNS));
         final List<SearchField> searchFields = Lists.newArrayListWithCapacity(iColumns);
         boolean regex;
@@ -133,6 +134,9 @@ public class TableParamArgumentResolver implements WebArgumentResolver {
         for (int col = 0; col < iColumns; col++) {
             searchValue = httpRequest.getParameter(S_SEACHE_VAL + col);
             sColName = httpRequest.getParameter(S_DATA_PROP + col);
+            sColName = humpSplit
+                    ? CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, sColName)
+                    : sColName;
             if (!Strings.isNullOrEmpty(searchValue)) {
                 regex = Boolean.valueOf(httpRequest.getParameter(B_REGEX + col));
                 searchable = Boolean.valueOf(httpRequest.getParameter(B_SORTTABLE + col));
@@ -142,5 +146,28 @@ public class TableParamArgumentResolver implements WebArgumentResolver {
             }
         }
         return searchFields;
+    }
+
+    @Override
+    public Object resolveArgument(MethodParameter methodParameter, NativeWebRequest webRequest) throws Exception {
+        TableParam tableParamAnnotation = methodParameter.getParameterAnnotation(TableParam.class);
+        if (tableParamAnnotation != null) {
+            HttpServletRequest httpRequest = (HttpServletRequest) webRequest.getNativeRequest();
+
+            String sEcho = httpRequest.getParameter(S_ECHO);
+            String sDisplayStart = httpRequest.getParameter(I_DISPLAY_START);
+            String sDisplayLength = httpRequest.getParameter(I_DISPLAY_LENGTH);
+
+            int iEcho = Integer.parseInt(sEcho);
+            int iDisplayStart = Integer.parseInt(sDisplayStart);
+            int iDisplayLength = Integer.parseInt(sDisplayLength);
+
+            List<SortField> sortFields = getSortFileds(httpRequest);
+            List<SearchField> searchFields = getSearchParam(httpRequest);
+
+            return PagingCriteria.createCriteriaWithAllParamter(iDisplayStart, iDisplayLength, iEcho, sortFields, searchFields);
+        }
+
+        return WebArgumentResolver.UNRESOLVED;
     }
 }

@@ -4,12 +4,6 @@
 
 package org.mybatis.pagination;
 
-import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Properties;
-
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -22,11 +16,7 @@ import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.ParameterMapping;
 import org.apache.ibatis.mapping.SqlSource;
-import org.apache.ibatis.plugin.Interceptor;
-import org.apache.ibatis.plugin.Intercepts;
-import org.apache.ibatis.plugin.Invocation;
-import org.apache.ibatis.plugin.Plugin;
-import org.apache.ibatis.plugin.Signature;
+import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.mybatis.pagination.dialect.DBMS;
@@ -37,6 +27,12 @@ import org.mybatis.pagination.dto.datatables.SearchField;
 import org.mybatis.pagination.dto.datatables.SortField;
 import org.mybatis.pagination.helpers.CountHelper;
 import org.mybatis.pagination.helpers.StringHelper;
+
+import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * <p>
@@ -109,15 +105,23 @@ public class PaginationInterceptor implements Interceptor, Serializable {
         return rowBounds;
     }
 
-    private static String sortAndFilterSql(String sql, PagingCriteria pagingCriteria, BoundSql boundSql) {
+    /**
+     * Sort and filter sql.
+     *
+     *
+     * @param sql the sql
+     * @param pagingCriteria the paging criteria
+     * @return the string
+     */
+    private static String sortAndFilterSql(String sql, PagingCriteria pagingCriteria) {
 
         boolean order = SqlRemoveHelper.containOrder(sql);
         final List<SearchField> searchFields = pagingCriteria.getSearchFields();
         if (searchFields != null && !searchFields.isEmpty()) {
             List<String> where_field = Lists.newArrayList();
             for (SearchField searchField : searchFields) {
-                //TODO regex and pre
-                where_field.add(searchField.getField() + StringHelper.LIKE_CHAR + "'%" + searchField.getValue() + "%'");
+                // fix inject sql
+                where_field.add(searchField.getField() + StringHelper.LIKE_CHAR + StringHelper.likeValue(searchField.getValue()));
             }
             boolean where = SqlRemoveHelper.containWhere(sql);
             String orderBy = StringHelper.EMPTY;
@@ -127,7 +131,7 @@ public class PaginationInterceptor implements Interceptor, Serializable {
                 orderBy = CountHelper.SQL_ORDER + sqls[1];
             }
             sql = String.format((where ? CountHelper.OR_SQL_FORMAT : CountHelper.WHERE_SQL_FORMAT), sql
-                    , Joiner.on(CountHelper.OR_JOINER).join(where_field), orderBy);
+                    , Joiner.on(CountHelper.OR_JOINER).skipNulls().join(where_field), orderBy);
         }
 
         final List<SortField> sortFields = pagingCriteria.getSortFields();
@@ -137,10 +141,59 @@ public class PaginationInterceptor implements Interceptor, Serializable {
                 field_order.add(sortField.getField() + StringHelper.BLANK_CHAR + sortField.getDirection().getDirection());
             }
             return String.format(order ? CountHelper.SQL_FORMAT : CountHelper.ORDER_SQL_FORMAT, sql
-                    , Joiner.on(StringHelper.DOT_CHAR).join(field_order));
+                    , Joiner.on(StringHelper.DOT_CHAR).skipNulls().join(field_order));
         }
 
         return sql;
+    }
+
+    /**
+     * Copy from bound sql.
+     *
+     * @param ms the ms
+     * @param boundSql the bound sql
+     * @param sql the sql
+     * @return the bound sql
+     */
+    public static BoundSql copyFromBoundSql(MappedStatement ms, BoundSql boundSql,
+                                            String sql) {
+        BoundSql newBoundSql = new BoundSql(ms.getConfiguration(), sql, boundSql.getParameterMappings(), boundSql.getParameterObject());
+        for (ParameterMapping mapping : boundSql.getParameterMappings()) {
+            String prop = mapping.getProperty();
+            if (boundSql.hasAdditionalParameter(prop)) {
+                newBoundSql.setAdditionalParameter(prop, boundSql.getAdditionalParameter(prop));
+            }
+        }
+        return newBoundSql;
+    }
+
+    //see: MapperBuilderAssistant
+    private static MappedStatement copyFromMappedStatement(MappedStatement ms, SqlSource newSqlSource) {
+        MappedStatement.Builder builder = new MappedStatement.Builder(ms.getConfiguration(), ms.getId(), newSqlSource, ms.getSqlCommandType());
+
+        builder.resource(ms.getResource());
+        builder.fetchSize(ms.getFetchSize());
+        builder.statementType(ms.getStatementType());
+        builder.keyGenerator(ms.getKeyGenerator());
+        String[] keyProperties = ms.getKeyProperties();
+        builder.keyProperty(keyProperties == null ? null : keyProperties[0]);
+
+        //setStatementTimeout()
+        builder.timeout(ms.getTimeout());
+
+        //setStatementResultMap()
+        builder.parameterMap(ms.getParameterMap());
+
+        //setStatementResultMap()
+        builder.resultMaps(ms.getResultMaps());
+        builder.resultSetType(ms.getResultSetType());
+
+        //setStatementCache()
+        builder.cache(ms.getCache());
+        builder.flushCacheRequired(ms.isFlushCacheRequired());
+        builder.useCache(ms.isUseCache());
+
+        return builder.build();
     }
 
     /**
@@ -186,7 +239,7 @@ public class PaginationInterceptor implements Interceptor, Serializable {
                     log.error("Close the database connection error.", e);
                 }
             }
-            String new_sql = sortAndFilterSql(sql, pageRequest, boundSql);
+            String new_sql = sortAndFilterSql(sql, pageRequest);
             if (_dialect.supportsLimit()) {
                 new_sql = _dialect.getLimitString(new_sql, offset, limit);
                 offset = RowBounds.NO_ROW_OFFSET;
@@ -205,47 +258,6 @@ public class PaginationInterceptor implements Interceptor, Serializable {
             MappedStatement newMs = copyFromMappedStatement(ms, new BoundSqlSqlSource(newBoundSql));
             queryArgs[MAPPED_STATEMENT_INDEX] = newMs;
         }
-    }
-
-    private static BoundSql copyFromBoundSql(MappedStatement ms, BoundSql boundSql,
-                                             String sql) {
-        BoundSql newBoundSql = new BoundSql(ms.getConfiguration(), sql, boundSql.getParameterMappings(), boundSql.getParameterObject());
-        for (ParameterMapping mapping : boundSql.getParameterMappings()) {
-            String prop = mapping.getProperty();
-            if (boundSql.hasAdditionalParameter(prop)) {
-                newBoundSql.setAdditionalParameter(prop, boundSql.getAdditionalParameter(prop));
-            }
-        }
-        return newBoundSql;
-    }
-
-    //see: MapperBuilderAssistant
-    private static MappedStatement copyFromMappedStatement(MappedStatement ms, SqlSource newSqlSource) {
-        MappedStatement.Builder builder = new MappedStatement.Builder(ms.getConfiguration(), ms.getId(), newSqlSource, ms.getSqlCommandType());
-
-        builder.resource(ms.getResource());
-        builder.fetchSize(ms.getFetchSize());
-        builder.statementType(ms.getStatementType());
-        builder.keyGenerator(ms.getKeyGenerator());
-        String[] keyProperties = ms.getKeyProperties();
-        builder.keyProperty(keyProperties == null ? null : keyProperties[0]);
-
-        //setStatementTimeout()
-        builder.timeout(ms.getTimeout());
-
-        //setStatementResultMap()
-        builder.parameterMap(ms.getParameterMap());
-
-        //setStatementResultMap()
-        builder.resultMaps(ms.getResultMaps());
-        builder.resultSetType(ms.getResultSetType());
-
-        //setStatementCache()
-        builder.cache(ms.getCache());
-        builder.flushCacheRequired(ms.isFlushCacheRequired());
-        builder.useCache(ms.isUseCache());
-
-        return builder.build();
     }
 
     @Override

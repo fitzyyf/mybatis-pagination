@@ -24,6 +24,8 @@ public final class StringHelper {
      * The like String {@code "like"}
      */
     public static final String LIKE_CHAR = " like ";
+    private static final String INJECTION_SQL = ".*([';]+|(--)+).*";
+    private static String LIKE_FORMATE = "'%%s%'";
 
     /**
      * <p>Checks if a CharSequence is not empty ("") and not null.</p>
@@ -117,6 +119,26 @@ public final class StringHelper {
             }
         }
         return true;
+    }
+
+    /**
+     * Transact sQL injection.
+     *
+     * @param sql the sql
+     * @return the string
+     */
+    public static String transactSQLInjection(String sql) {
+        return sql.replaceAll(INJECTION_SQL, " ");
+    }
+
+    /**
+     * Like value.
+     *
+     * @param value the value
+     * @return the string
+     */
+    public static String likeValue(String value) {
+        return String.format(LIKE_FORMATE, transactSQLInjection(value));
     }
 
 }

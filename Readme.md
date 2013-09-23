@@ -46,7 +46,7 @@ in the Mybatis config, add the plugin.
 2. add propertie into `pom.xml`:properties
 		
         <properties>
-            <org.mybatis.pagination.version>0.0.2-1</org.mybatis.pagination.version>
+            <org.mybatis.pagination.version>0.0.3</org.mybatis.pagination.version>
         </properties>
 
 3. add dependency into `pom.xml`
