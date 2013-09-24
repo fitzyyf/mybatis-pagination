@@ -93,13 +93,37 @@ public class TableParamArgumentResolver implements WebArgumentResolver {
         this.humpSplit = humpSplit;
     }
 
+
+    @Override
+    public Object resolveArgument(MethodParameter methodParameter, NativeWebRequest webRequest) throws Exception {
+        TableParam tableParamAnnotation = methodParameter.getParameterAnnotation(TableParam.class);
+        if (tableParamAnnotation != null) {
+            HttpServletRequest httpRequest = (HttpServletRequest) webRequest.getNativeRequest();
+
+            String sEcho = httpRequest.getParameter(S_ECHO);
+            String sDisplayStart = httpRequest.getParameter(I_DISPLAY_START);
+            String sDisplayLength = httpRequest.getParameter(I_DISPLAY_LENGTH);
+
+            int iEcho = Integer.parseInt(sEcho);
+            int iDisplayStart = Integer.parseInt(sDisplayStart);
+            int iDisplayLength = Integer.parseInt(sDisplayLength);
+
+            List<SortField> sortFields = getSortFileds(httpRequest);
+            List<SearchField> searchFields = getSearchParam(httpRequest);
+
+            return PagingCriteria.createCriteriaWithAllParamter(iDisplayStart, iDisplayLength, iEcho, sortFields, searchFields);
+        }
+
+        return WebArgumentResolver.UNRESOLVED;
+    }
+
     /**
      * Gets sort fileds.
      *
      * @param httpRequest the http request
      * @return the sort fileds
      */
-    private static List<SortField> getSortFileds(final HttpServletRequest httpRequest) {
+    private List<SortField> getSortFileds(final HttpServletRequest httpRequest) {
 
         String sSortingCols = httpRequest.getParameter(I_SORTING_COLS);
 
@@ -112,6 +136,9 @@ public class TableParamArgumentResolver implements WebArgumentResolver {
             sSortCol = httpRequest.getParameter(I_SORT_COLS + colCount);
             sSortDir = httpRequest.getParameter(S_SORT_DIR + colCount);
             sColName = httpRequest.getParameter(S_DATA_PROP + sSortCol);
+            sColName = humpSplit
+                    ? CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, sColName)
+                    : sColName;
             sortFields.add(new SortField(sColName, sSortDir));
         }
         return sortFields;
@@ -148,26 +175,4 @@ public class TableParamArgumentResolver implements WebArgumentResolver {
         return searchFields;
     }
 
-    @Override
-    public Object resolveArgument(MethodParameter methodParameter, NativeWebRequest webRequest) throws Exception {
-        TableParam tableParamAnnotation = methodParameter.getParameterAnnotation(TableParam.class);
-        if (tableParamAnnotation != null) {
-            HttpServletRequest httpRequest = (HttpServletRequest) webRequest.getNativeRequest();
-
-            String sEcho = httpRequest.getParameter(S_ECHO);
-            String sDisplayStart = httpRequest.getParameter(I_DISPLAY_START);
-            String sDisplayLength = httpRequest.getParameter(I_DISPLAY_LENGTH);
-
-            int iEcho = Integer.parseInt(sEcho);
-            int iDisplayStart = Integer.parseInt(sDisplayStart);
-            int iDisplayLength = Integer.parseInt(sDisplayLength);
-
-            List<SortField> sortFields = getSortFileds(httpRequest);
-            List<SearchField> searchFields = getSearchParam(httpRequest);
-
-            return PagingCriteria.createCriteriaWithAllParamter(iDisplayStart, iDisplayLength, iEcho, sortFields, searchFields);
-        }
-
-        return WebArgumentResolver.UNRESOLVED;
-    }
 }
